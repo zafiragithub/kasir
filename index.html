@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
     <div id="login-screen">
         <div class="login-box smooth-transition">
             <span style="font-size: 40px; display: block; margin-bottom: 10px;">🧰</span>
@@ -22,12 +21,12 @@
         <header class="top-header">
             <div class="logo-area">
                 <span style="color: #ef4444; font-size: 24px;">🧰</span> 
-                <h2 id="nama-toko-header">UMKM MELIMPAH</h2>
+                <h2>TOKO BOS</h2>
             </div>
             <div class="header-info">
                 <div><small>CUSTOMER</small><br><b id="display-customer">CASH / UMUM</b></div>
                 <div><small>TANGGAL</small><br><b id="tanggal-hari-ini">-</b></div>
-                <div><small>KASIR</small><br><b id="nama-kasir-aktif">Siti Aisyah</b></div>
+                <div><small>KASIR</small><br><b id="nama-kasir-aktif">Admin</b></div>
             </div>
         </header>
 
@@ -54,6 +53,7 @@
                     <button id="btn-qty">🔢 QTY (F4)</button>
                     <button id="btn-hapus-semua">🗑️ HAPUS SEMUA</button>
                     <button id="btn-tambah-produk" style="background: #10b981; color: white; border-color: #10b981;">➕ TAMBAH PRODUK</button>
+                    <button id="btn-logout" style="background: #ef4444; color: white; border-color: #ef4444; margin-left: auto;">🚪 KELUAR</button>
                 </div>
 
                 <div class="table-container">
@@ -83,8 +83,6 @@
                     <button id="btn-member">👤 MEMBER</button>
                     <button id="btn-cek-harga">🔍 CEK HARGA</button>
                     <button id="btn-laporan" style="background-color: #3b82f6; color: white; border-color: #3b82f6;">📊 LAPORAN</button>
-                    
-                    <button id="btn-logout" style="background: #ef4444; color: white; border-color: #ef4444; margin-top: auto;">🚪 KELUAR</button>
                 </div>
                 
                 <div class="payment-summary">
@@ -102,7 +100,7 @@
                 <button id="btn-checkout" class="btn-bayar smooth-transition">BAYAR (F12)</button>
             </aside>
         </div>
-    </div> <div id="struk-modal" class="modal smooth-transition">
+    </div> <div id="struk-modal" class="modal smooth-transition" style="display: none;">
         <div class="modal-content">
             <div id="struk-preview"></div>
             <div class="modal-actions">
@@ -113,7 +111,7 @@
         </div>
     </div>
 
-    <div id="modal-tambah-produk" class="modal smooth-transition">
+    <div id="modal-tambah-produk" class="modal smooth-transition" style="display: none;">
         <div class="modal-content">
             <h3 style="margin-bottom: 15px; border-bottom: 2px solid #ef4444; padding-bottom: 10px;">Tambah Produk Baru</h3>
             <div class="input-group">
@@ -128,8 +126,14 @@
                 <input type="text" id="new-nama" class="smooth-transition" placeholder="Nama Barang">
             </div>
             <div style="display: flex; gap: 10px;">
-                <div class="input-group" style="flex: 1;"><label>Kategori</label><input type="text" id="new-kategori" class="smooth-transition" value="Umum"></div>
-                <div class="input-group" style="flex: 1;"><label>Harga (Rp)</label><input type="number" id="new-harga" class="smooth-transition" placeholder="0"></div>
+                <div class="input-group" style="flex: 1;">
+                    <label>Kategori</label>
+                    <input type="text" id="new-kategori" class="smooth-transition" value="Umum">
+                </div>
+                <div class="input-group" style="flex: 1;">
+                    <label>Harga (Rp)</label>
+                    <input type="number" id="new-harga" class="smooth-transition" placeholder="0">
+                </div>
             </div>
             <div class="modal-actions">
                 <button id="btn-simpan-produk" class="btn-primary" style="background: #10b981;">💾 Simpan ke Database</button>
@@ -138,7 +142,7 @@
         </div>
     </div>
 
-    <div id="scanner-modal" class="modal smooth-transition" style="z-index: 2000;">
+    <div id="scanner-modal" class="modal smooth-transition" style="z-index: 2000; display: none;">
         <div class="modal-content" style="text-align: center;">
             <h3 style="margin-bottom: 15px;">Arahkan Barcode ke Kamera</h3>
             <div id="reader" style="width: 100%; max-width: 400px; margin: 0 auto; border: 2px dashed #d1d5db; border-radius: 8px; overflow: hidden; background: #f3f4f6;"></div>
@@ -146,7 +150,7 @@
         </div>
     </div>
 
-    <div id="custom-modal" class="modal smooth-transition" style="z-index: 3000;">
+    <div id="custom-modal" class="modal smooth-transition" style="z-index: 3000; display: none;">
         <div class="modal-content" style="text-align: center; width: 320px;">
             <h3 id="custom-modal-title" style="margin-bottom: 15px; font-size: 16px;">Konfirmasi</h3>
             <div id="custom-input-wrapper" style="display: none; gap: 8px; margin-bottom: 15px;">
@@ -160,26 +164,7 @@
         </div>
     </div>
 
-    <div id="modal-laporan" class="modal smooth-transition" style="z-index: 2600;">
-        <div class="modal-content" style="max-width: 800px; width: 95%; max-height: 90vh; overflow-y: auto;" id="area-print-laporan">
-            <div style="text-align: center; margin-bottom: 20px;">
-                <h2 style="margin: 0; color: #10b981;">UMKM MELIMPAH</h2>
-                <h3 style="margin: 5px 0 15px 0; border-bottom: 2px solid #3b82f6; padding-bottom: 10px;">📊 Laporan Penjualan Lengkap</h3>
-            </div>
-            
-            <div class="report-grid">
-                <div class="report-card"><h4>HARI INI</h4><h2 id="lap-harian">Rp 0</h2></div>
-                <div class="report-card"><h4>7 HARI TERAKHIR</h4><h2 id="lap-mingguan">Rp 0</h2></div>
-                <div class="report-card"><h4>BULAN INI</h4><h2 id="lap-bulanan">Rp 0</h2></div>
-            </div>
-
-            <h4 style="margin-top: 25px; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px;">Rincian 50 Transaksi Terakhir</h4>
-            <div style="overflow-x: auto; margin-bottom: 20px;"><table class="cart-table" style="width: 100%; font-size: 13px;"><thead><tr><th>Waktu Transaksi</th><th>ID Transaksi</th><th>Kasir / Pelanggan</th><th>Metode</th><th style="text-align: right;">Total (Rp)</th></tr></thead><tbody id="tabel-rincian-laporan"></tbody></table></div>
-            <div class="modal-actions" id="aksi-laporan"><button id="btn-cetak-laporan" class="btn-primary" style="background-color: #3b82f6; margin-bottom: 8px;">📄 Download PDF / Print Laporan</button><button id="btn-tutup-laporan" class="btn-danger">Tutup Laporan</button></div>
-        </div>
-    </div>
-
-    <div id="modal-favorit" class="modal smooth-transition" style="z-index: 2500;">
+    <div id="modal-favorit" class="modal smooth-transition" style="z-index: 2500; display: none;">
         <div class="modal-content" style="max-width: 500px; text-align: center; width: 90%;">
             <h3 style="margin-bottom: 15px; border-bottom: 2px solid #3b82f6; padding-bottom: 10px;">⭐ Menu Cepat (Favorit)</h3>
             <div id="grid-favorit" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; margin-bottom: 20px; max-height: 350px; overflow-y: auto; padding: 5px;"></div>
@@ -187,7 +172,50 @@
         </div>
     </div>
 
+    <div id="modal-laporan" class="modal smooth-transition" style="z-index: 2600; display: none;">
+        <div class="modal-content" style="max-width: 800px; width: 95%; max-height: 90vh; overflow-y: auto;" id="area-print-laporan">
+            <div style="text-align: center; margin-bottom: 20px;">
+                <h2 style="margin: 0; color: #10b981;">TOKO BOS</h2>
+                <h3 style="margin: 5px 0 15px 0; border-bottom: 2px solid #3b82f6; padding-bottom: 10px;">📊 Laporan Penjualan Lengkap</h3>
+            </div>
+            <div class="report-grid">
+                <div class="report-card">
+                    <h4>HARI INI</h4>
+                    <h2 id="lap-harian">Rp 0</h2>
+                </div>
+                <div class="report-card">
+                    <h4>7 HARI TERAKHIR</h4>
+                    <h2 id="lap-mingguan">Rp 0</h2>
+                </div>
+                <div class="report-card">
+                    <h4>BULAN INI</h4>
+                    <h2 id="lap-bulanan">Rp 0</h2>
+                </div>
+            </div>
+            <h4 style="margin-top: 25px; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px;">Rincian 50 Transaksi Terakhir</h4>
+            <div style="overflow-x: auto; margin-bottom: 20px;">
+                <table class="cart-table" style="width: 100%; font-size: 13px;">
+                    <thead>
+                        <tr>
+                            <th>Waktu Transaksi</th>
+                            <th>ID Transaksi</th>
+                            <th>Kasir / Pelanggan</th>
+                            <th>Metode</th>
+                            <th style="text-align: right;">Total (Rp)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabel-rincian-laporan"></tbody>
+                </table>
+            </div>
+            <div class="modal-actions" id="aksi-laporan">
+                <button id="btn-cetak-laporan" class="btn-primary" style="background-color: #3b82f6; margin-bottom: 8px;">📄 Download PDF / Print Laporan</button>
+                <button id="btn-tutup-laporan" class="btn-danger">Tutup Laporan</button>
+            </div>
+        </div>
+    </div>
+
     <div id="toast-container" class="toast-container"></div>
+    
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <script src="script.js"></script>
 </body>
