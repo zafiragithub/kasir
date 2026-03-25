@@ -1,10 +1,12 @@
-// --- STATE APLIKASI ---
+// ==========================================
+// --- STATE APLIKASI & ELEMEN DOM UTAMA ---
+// ==========================================
 const NAMA_TOKO = "TOKO BOS"; 
 let daftarProduk = [];
 let keranjang = [];
 let totalBelanja = 0;
 
-// Elemen DOM
+// DOM Header & Tampilan
 const tanggalHariIni = document.getElementById('tanggal-hari-ini');
 const displayCustomer = document.getElementById('display-customer');
 const searchInput = document.getElementById('cari-produk');
@@ -12,19 +14,29 @@ const searchDropdown = document.getElementById('search-dropdown');
 const cartTableBody = document.getElementById('cart-table-body');
 const totalPriceBig = document.getElementById('total-price-big');
 
+// DOM Pembayaran
 const namaInput = document.getElementById('nama-pembeli');
 const bayarInput = document.getElementById('uang-bayar');
 const kembaliEl = document.getElementById('uang-kembali');
 const btnCheckout = document.getElementById('btn-checkout');
 
+// DOM Tambah Produk
+const modalProduk = document.getElementById('modal-tambah-produk');
+const btnTambahProduk = document.getElementById('btn-tambah-produk');
+const btnSimpanProduk = document.getElementById('btn-simpan-produk');
+
+// DOM Struk
 const modal = document.getElementById('struk-modal');
 const strukPreview = document.getElementById('struk-preview');
 let dataStrukAktif = null;
 
-// Tanggal Hari Ini
+// Set Tanggal Hari Ini
 tanggalHariIni.innerText = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
 
-// --- 1. AMBIL DATA PRODUK ---
+
+// ==========================================
+// --- 1. AMBIL DATA PRODUK DARI SERVER ---
+// ==========================================
 async function fetchProduk() {
     try {
         searchInput.placeholder = "Memuat data dari server...";
@@ -40,7 +52,10 @@ async function fetchProduk() {
     }
 }
 
-// --- 2. PENCARIAN & DROPDOWN ---
+
+// ==========================================
+// --- 2. PENCARIAN & DROPDOWN (KASIR) ---
+// ==========================================
 searchInput.addEventListener('input', (e) => {
     const kataKunci = e.target.value.toLowerCase().trim();
     if (!kataKunci) { searchDropdown.style.display = 'none'; return; }
@@ -55,6 +70,7 @@ searchInput.addEventListener('input', (e) => {
             const div = document.createElement('div');
             div.className = 'dropdown-item smooth-transition';
             div.innerHTML = `<b>${produk.id_produk}</b> - ${produk.nama_produk} <span style="float:right; color:#ef4444;">Rp ${produk.harga.toLocaleString('id-ID')}</span>`;
+            
             div.addEventListener('click', () => {
                 tambahKeKeranjang(produk);
                 searchInput.value = ''; 
@@ -67,16 +83,17 @@ searchInput.addEventListener('input', (e) => {
     searchDropdown.style.display = 'block';
 });
 
+// Menutup dropdown jika klik di luar area
 document.addEventListener('click', (e) => {
-    if (!searchInput.contains(e.target) && !searchDropdown.contains(e.target)) searchDropdown.style.display = 'none';
+    if (!searchInput.contains(e.target) && !searchDropdown.contains(e.target)) {
+        searchDropdown.style.display = 'none';
+    }
 });
 
-// Update Customer Display
-namaInput.addEventListener('input', (e) => {
-    displayCustomer.innerText = e.target.value || "CASH / UMUM";
-});
 
-// --- 3. LOGIKA KERANJANG ---
+// ==========================================
+// --- 3. LOGIKA KERANJANG BELANJA ---
+// ==========================================
 function tambahKeKeranjang(produk) {
     const itemAda = keranjang.find(item => item.id_produk === produk.id_produk);
     if (itemAda) { itemAda.qty += 1; } else { keranjang.push({ ...produk, qty: 1 }); }
@@ -130,7 +147,10 @@ function renderKeranjang() {
     hitungKembalian();
 }
 
+
+// ==========================================
 // --- 4. KALKULATOR KEMBALIAN ---
+// ==========================================
 function hitungKembalian() {
     const bayar = parseInt(bayarInput.value) || 0;
     const kembalian = bayar - totalBelanja;
@@ -144,7 +164,14 @@ function hitungKembalian() {
 }
 bayarInput.addEventListener('input', hitungKembalian);
 
-// --- 5. CHECKOUT ---
+namaInput.addEventListener('input', (e) => {
+    displayCustomer.innerText = e.target.value || "CASH / UMUM";
+});
+
+
+// ==========================================
+// --- 5. CHECKOUT (TRANSAKSI KASIR) ---
+// ==========================================
 async function prosesPembayaran() {
     const bayar = parseInt(bayarInput.value) || 0;
     const kembalian = bayar - totalBelanja;
@@ -171,7 +198,7 @@ async function prosesPembayaran() {
         const result = await response.json();
         
         if (result.status === 'success') {
-            tampilkanModalStruk(dataTransaksi); // PANGGIL MODAL SEKARANG
+            tampilkanModalStruk(dataTransaksi); // Munculkan struk
             resetTransaksi(); // Bersihkan background layar kasir
         }
     } catch (error) {
@@ -194,9 +221,10 @@ function resetTransaksi() {
     searchInput.focus();
 }
 
-// --- 6. FUNGSI TOMBOL TOOLBAR & SIDEBAR (FULL AKTIF) ---
 
-// NEW: Simpan yang ada ke draft sementara, lalu kosongkan
+// ==========================================
+// --- 6. FUNGSI TOMBOL TOOLBAR & SIDEBAR ---
+// ==========================================
 document.getElementById('btn-new').addEventListener('click', () => {
     if(keranjang.length > 0) {
         if(confirm("Simpan transaksi ini ke Draft dan buat baru?")) {
@@ -206,7 +234,6 @@ document.getElementById('btn-new').addEventListener('click', () => {
     } else { resetTransaksi(); }
 });
 
-// OPEN: Panggil transaksi dari draft
 document.getElementById('btn-open').addEventListener('click', () => {
     let draft = localStorage.getItem('draft_kasir');
     if(draft) {
@@ -216,12 +243,10 @@ document.getElementById('btn-open').addEventListener('click', () => {
     } else { alert("Tidak ada draft tersimpan."); }
 });
 
-// HAPUS SEMUA
 document.getElementById('btn-hapus-semua').addEventListener('click', () => {
     if(confirm("Kosongkan keranjang?")) { keranjang = []; renderKeranjang(); }
 });
 
-// MEMBER
 document.getElementById('btn-member').addEventListener('click', () => {
     let namaMember = prompt("Masukkan Nama / Meja Member:");
     if(namaMember) {
@@ -230,7 +255,6 @@ document.getElementById('btn-member').addEventListener('click', () => {
     }
 });
 
-// QTY (F4): Ubah Qty barang terakhir di keranjang
 document.getElementById('btn-qty').addEventListener('click', () => {
     if(keranjang.length === 0) return alert("Keranjang kosong!");
     let lastItem = keranjang[keranjang.length - 1];
@@ -241,7 +265,6 @@ document.getElementById('btn-qty').addEventListener('click', () => {
     }
 });
 
-// HARGA: Override harga barang terakhir (Biasa untuk custom harga)
 document.getElementById('btn-harga').addEventListener('click', () => {
     if(keranjang.length === 0) return alert("Keranjang kosong!");
     let lastItem = keranjang[keranjang.length - 1];
@@ -252,7 +275,6 @@ document.getElementById('btn-harga').addEventListener('click', () => {
     }
 });
 
-// DISC ITEM: Potongan nominal untuk barang terakhir
 document.getElementById('btn-disc').addEventListener('click', () => {
     if(keranjang.length === 0) return alert("Keranjang kosong!");
     let lastItem = keranjang[keranjang.length - 1];
@@ -264,7 +286,6 @@ document.getElementById('btn-disc').addEventListener('click', () => {
     }
 });
 
-// CEK HARGA: Cari harga tanpa masuk keranjang
 document.getElementById('btn-cek-harga').addEventListener('click', () => {
     let kode = prompt("Scan atau ketik kode/nama produk untuk cek harga:");
     if(kode) {
@@ -274,35 +295,31 @@ document.getElementById('btn-cek-harga').addEventListener('click', () => {
     }
 });
 
-// FAVORIT: Hanya memunculkan alert notifikasi untuk saat ini
-document.getElementById('btn-favorit').addEventListener('click', () => alert("Sistem Favorit Aktif: Fitur ini akan menampilkan 5 barang terlaris di rilis berikutnya."));
+document.getElementById('btn-favorit').addEventListener('click', () => alert("Fitur Favorit akan segera hadir!"));
 
 
+// ==========================================
 // --- 7. LOGIKA TAMBAH PRODUK BARU ---
-const modalProduk = document.getElementById('modal-tambah-produk');
-const btnTambahProduk = document.getElementById('btn-tambah-produk');
-const btnSimpanProduk = document.getElementById('btn-simpan-produk');
-
-// Buka Modal
+// ==========================================
+// Buka Modal Tambah
 btnTambahProduk.addEventListener('click', () => {
     modalProduk.style.display = 'flex';
     setTimeout(() => modalProduk.style.opacity = '1', 10);
     document.getElementById('new-id').focus();
 });
 
-// Tutup Modal
+// Tutup Modal Tambah
 document.getElementById('btn-batal-produk').addEventListener('click', () => {
     modalProduk.style.opacity = '0';
     setTimeout(() => {
         modalProduk.style.display = 'none';
-        // Bersihkan input
         document.getElementById('new-id').value = '';
         document.getElementById('new-nama').value = '';
         document.getElementById('new-harga').value = '';
     }, 300);
 });
 
-// Eksekusi Simpan Produk ke Google Sheets
+// Eksekusi Simpan ke Server
 btnSimpanProduk.addEventListener('click', async () => {
     const pId = document.getElementById('new-id').value;
     const pNama = document.getElementById('new-nama').value;
@@ -311,31 +328,27 @@ btnSimpanProduk.addEventListener('click', async () => {
 
     if(!pId || !pNama || !pHarga) return alert("Lengkapi ID, Nama, dan Harga!");
 
-    // Kunci tombol agar tidak ada data ganda masuk / pending
     btnSimpanProduk.disabled = true;
     btnSimpanProduk.innerText = "Menyimpan...";
     btnSimpanProduk.style.backgroundColor = "#9ca3af";
 
     const payloadProduk = {
-        action: "tambah_produk", // Penanda untuk Google Apps Script
+        action: "tambah_produk",
         id_produk: pId,
         nama_produk: pNama,
         kategori: pKategori,
         harga: parseInt(pHarga),
-        stok: 999 // Default stok
+        stok: 999 
     };
 
     try {
-        const response = await fetch('/api', {
-            method: 'POST',
-            body: JSON.stringify(payloadProduk)
-        });
+        const response = await fetch('/api', { method: 'POST', body: JSON.stringify(payloadProduk) });
         const result = await response.json();
 
         if (result.status === 'success') {
             alert("Produk berhasil ditambahkan!");
-            document.getElementById('btn-batal-produk').click(); // Tutup modal otomatis
-            fetchProduk(); // Langsung reload data produk di background (Smooth, tanpa refresh halaman)
+            document.getElementById('btn-batal-produk').click(); 
+            fetchProduk(); // Refresh data di background
         }
     } catch (error) {
         alert("Gagal menyimpan produk. Cek koneksi.");
@@ -345,7 +358,11 @@ btnSimpanProduk.addEventListener('click', async () => {
         btnSimpanProduk.style.backgroundColor = "#10b981";
     }
 });
-// --- 7. MODAL STRUK (DIPERBAIKI) ---
+
+
+// ==========================================
+// --- 8. MODAL STRUK & CETAK THERMAL ---
+// ==========================================
 function tampilkanModalStruk(dataTrans) {
     dataStrukAktif = dataTrans;
     let htmlStruk = `
@@ -376,23 +393,26 @@ function tampilkanModalStruk(dataTrans) {
     setTimeout(() => modal.style.opacity = '1', 10);
 }
 
-// Aksi Modal
 document.getElementById('btn-tutup-modal').addEventListener('click', () => {
     modal.style.opacity = '0';
     setTimeout(() => modal.style.display = 'none', 300);
 });
+
 document.getElementById('btn-download-pdf').addEventListener('click', () => window.print());
+
 document.getElementById('btn-print-thermal').addEventListener('click', async () => {
     if (!dataStrukAktif) return;
     try {
         const port = await navigator.serial.requestPort();
         await port.open({ baudRate: 9600 });
         const writer = port.writable.getWriter();
+        
         let strukText = `==== ${NAMA_TOKO} ====\nID: ${dataStrukAktif.id_transaksi}\nCustomer: ${dataStrukAktif.nama_meja}\n------------------\n`;
         JSON.parse(dataStrukAktif.daftar_pesanan).forEach(item => {
             strukText += `${item.nama_produk}\n${item.qty} x ${item.harga} = ${item.harga * item.qty}\n`;
         });
         strukText += `------------------\nTOTAL: Rp ${dataStrukAktif.total_harga}\nBAYAR: Rp ${dataStrukAktif.uang_bayar}\nKEMBALI: Rp ${dataStrukAktif.uang_kembali}\nTerima Kasih!\n\n\n`;
+        
         const encoder = new TextEncoder();
         await writer.write(encoder.encode(strukText));
         await writer.write(new Uint8Array([0x1D, 0x56, 0x00]));
@@ -401,67 +421,52 @@ document.getElementById('btn-print-thermal').addEventListener('click', async () 
     } catch (error) { console.log("Cetak dibatalkan", error); }
 });
 
-fetchProduk();
-// --- 8. FITUR SCANNER BARCODE KAMERA ---
+
+// ==========================================
+// --- 9. FITUR SCANNER BARCODE KAMERA ---
+// ==========================================
 const scannerModal = document.getElementById('scanner-modal');
 const btnScanKasir = document.getElementById('btn-scan-kasir');
-const btnScanTambah = document.getElementById('btn-scan-tambah'); // Tombol scan di modal tambah
+const btnScanTambah = document.getElementById('btn-scan-tambah');
 const btnTutupScanner = document.getElementById('btn-tutup-scanner');
 let html5QrCode;
-let targetInputScan = null; // Mengingat input mana yang meminta scan
+let targetInputScan = null;
 
-// Fungsi untuk menyalakan kamera dengan target spesifik
 function bukaScannerKamera(elemenTarget) {
-    targetInputScan = elemenTarget; // Simpan elemen input yang akan diisi
+    targetInputScan = elemenTarget; 
     
     scannerModal.style.display = 'flex';
     setTimeout(() => scannerModal.style.opacity = '1', 10);
 
     html5QrCode = new Html5Qrcode("reader");
     
-    // 1. SETTING SUPER TAJAM (Rasio disesuaikan, Resolusi HP tidak dipaksa)
-    const config = { 
-        fps: 20, 
-        qrbox: { width: 250, height: 100 } // Area scan disesuaikan agar cocok di layar HP
-    };
-    
-    // 2. SETTING KAMERA ANTI-REWEL (Cukup minta kamera belakang tanpa paksa resolusi)
+    const config = { fps: 20, qrbox: { width: 250, height: 100 } };
     const cameraConfig = { facingMode: "environment" };
     
     html5QrCode.start(cameraConfig, config, 
         (decodedText, decodedResult) => {
-            // Bunyikan suara
             suaraBeep();
-            
-            // Masukkan teks ke kotak input yang memanggil kamera
             targetInputScan.value = decodedText;
             
-            // Jika yang manggil adalah kasir, pancing pencarian otomatis
             if (targetInputScan.id === 'cari-produk') {
                 targetInputScan.dispatchEvent(new Event('input'));
             }
-            
-            // Matikan kamera
             tutupScannerKamera();
         },
-        (errorMessage) => {
-            // Biarkan kosong, abaikan error saat kamera mencari fokus
-        }
+        (errorMessage) => { /* Abaikan error pencarian fokus */ }
     ).catch((err) => {
-        // Menampilkan pesan error ASLI dari browser supaya kita tahu penyebabnya
         alert("Akses kamera ditolak oleh HP/Browser. Pesan Sistem: " + err);
         tutupScannerKamera();
     });
 }
+
 function tutupScannerKamera() {
     if (html5QrCode) {
         html5QrCode.stop().then(() => {
             html5QrCode.clear();
             hilangkanModalScanner();
         }).catch(err => hilangkanModalScanner());
-    } else {
-        hilangkanModalScanner();
-    }
+    } else { hilangkanModalScanner(); }
 }
 
 function hilangkanModalScanner() {
@@ -484,12 +489,19 @@ function suaraBeep() {
     } catch(e) { console.log("Audio tidak didukung"); }
 }
 
-// Pasang aksi ke masing-masing tombol dengan target yang berbeda
 btnScanKasir.addEventListener('click', () => bukaScannerKamera(searchInput));
-
-// Pastikan tombol scan tambah produk ada sebelum dipasang event
 if (btnScanTambah) {
     btnScanTambah.addEventListener('click', () => bukaScannerKamera(document.getElementById('new-id')));
 }
-
 btnTutupScanner.addEventListener('click', tutupScannerKamera);
+
+// Shortcut Keyboard Kasir (F11 = New, F12 = Bayar)
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'F12') { e.preventDefault(); prosesPembayaran(); }
+    if (e.key === 'F11') { e.preventDefault(); document.getElementById('btn-new').click(); }
+});
+
+// ==========================================
+// --- JALANKAN SAAT PERTAMA DIBUKA ---
+// ==========================================
+fetchProduk();
