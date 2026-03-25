@@ -60,7 +60,11 @@ searchInput.addEventListener('input', (e) => {
     const kataKunci = e.target.value.toLowerCase().trim();
     if (!kataKunci) { searchDropdown.style.display = 'none'; return; }
 
-    const hasil = daftarProduk.filter(p => p.nama_produk.toLowerCase().includes(kataKunci) || p.id_produk.toLowerCase().includes(kataKunci));
+    // PERBAIKAN: Mengubah semua data ID dan Nama menjadi String (Teks) agar tidak crash saat mencari
+    const hasil = daftarProduk.filter(p => 
+        String(p.nama_produk).toLowerCase().includes(kataKunci) || 
+        String(p.id_produk).toLowerCase().includes(kataKunci)
+    );
 
     searchDropdown.innerHTML = '';
     if (hasil.length === 0) {
@@ -97,8 +101,8 @@ searchInput.addEventListener('keydown', (e) => {
         const kataKunci = e.target.value.toLowerCase().trim();
         if (!kataKunci) return;
 
-        // Cari barang yang ID/Barcode-nya sama persis
-        const cari = daftarProduk.find(p => p.id_produk.toLowerCase() === kataKunci);
+        // PERBAIKAN: Pastikan format ID dari database diperlakukan sebagai String (Teks)
+        const cari = daftarProduk.find(p => String(p.id_produk).toLowerCase() === kataKunci);
 
         if (cari) {
             tambahKeKeranjang(cari);
@@ -309,7 +313,7 @@ document.getElementById('btn-disc').addEventListener('click', () => {
 document.getElementById('btn-cek-harga').addEventListener('click', () => {
     let kode = prompt("Scan atau ketik kode/nama produk untuk cek harga:");
     if(kode) {
-        let cari = daftarProduk.find(p => p.nama_produk.toLowerCase().includes(kode.toLowerCase()) || p.id_produk.toLowerCase() === kode.toLowerCase());
+        let cari = daftarProduk.find(p => String(p.nama_produk).toLowerCase().includes(kode.toLowerCase()) || String(p.id_produk).toLowerCase() === kode.toLowerCase());
         if(cari) alert(`HARGA ${cari.nama_produk} : Rp ${cari.harga.toLocaleString('id-ID')}`);
         else alert("Produk tidak ditemukan di database.");
     }
@@ -448,9 +452,11 @@ const btnScanTambah = document.getElementById('btn-scan-tambah');
 const btnTutupScanner = document.getElementById('btn-tutup-scanner');
 let html5QrCode;
 let targetInputScan = null;
+let isProcessingScan = false; // PERBAIKAN: Kunci agar tidak bip berkali-kali
 
 function bukaScannerKamera(elemenTarget) {
     targetInputScan = elemenTarget; 
+    isProcessingScan = false; // Buka kunci saat kamera mulai
     
     scannerModal.style.display = 'flex';
     setTimeout(() => scannerModal.style.opacity = '1', 10);
@@ -462,20 +468,24 @@ function bukaScannerKamera(elemenTarget) {
     
     html5QrCode.start(cameraConfig, config, 
         (decodedText, decodedResult) => {
-            suaraBeep(); // Bunyikan suara
+            // PERBAIKAN: Rem Otomatis. Jika sedang proses, abaikan scan berikutnya
+            if (isProcessingScan) return; 
+            isProcessingScan = true; 
+
+            suaraBeep(); 
             
-            // JIKA KASIR YANG SCAN: Langsung cari dan masukkan keranjang
             if (targetInputScan.id === 'cari-produk') {
-                const cari = daftarProduk.find(p => p.id_produk.toLowerCase() === decodedText.toLowerCase());
+                // PERBAIKAN: Format angka barcode ke String agar tidak crash
+                const cari = daftarProduk.find(p => String(p.id_produk).toLowerCase() === String(decodedText).toLowerCase());
+                
                 if (cari) {
-                    tambahKeKeranjang(cari); // Langsung masuk keranjang!
-                    targetInputScan.value = ''; // Kosongkan input
-                    if(searchDropdown) searchDropdown.style.display = 'none'; // Tutup dropdown
+                    tambahKeKeranjang(cari); 
+                    targetInputScan.value = ''; 
+                    if(searchDropdown) searchDropdown.style.display = 'none'; 
                 } else {
                     alert("Barang dengan Barcode " + decodedText + " tidak ditemukan di database!");
                 }
             } else {
-                // JIKA MENU TAMBAH PRODUK YANG SCAN: Cuma isi teksnya saja
                 targetInputScan.value = decodedText;
             }
             
