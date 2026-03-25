@@ -411,6 +411,7 @@ let html5QrCode;
 let targetInputScan = null; // Mengingat input mana yang meminta scan
 
 // Fungsi untuk menyalakan kamera dengan target spesifik
+// Fungsi untuk menyalakan kamera dengan target spesifik
 function bukaScannerKamera(elemenTarget) {
     targetInputScan = elemenTarget; // Simpan elemen input yang akan diisi
     
@@ -418,9 +419,22 @@ function bukaScannerKamera(elemenTarget) {
     setTimeout(() => scannerModal.style.opacity = '1', 10);
 
     html5QrCode = new Html5Qrcode("reader");
-    const config = { fps: 10, qrbox: { width: 250, height: 150 } };
     
-    html5QrCode.start({ facingMode: "environment" }, config, 
+    // 1. SETTING SUPER TAJAM: Bikin area scan memanjang & FPS dinaikkan
+    const config = { 
+        fps: 20, // Dipercepat agar lebih responsif menangkap gambar
+        qrbox: { width: 300, height: 120 }, // Bentuk persegi panjang, pas untuk barcode garis
+        aspectRatio: 1.777778 // Rasio layar 16:9
+    };
+    
+    // 2. SETTING KAMERA HD: Paksa pakai kamera belakang dengan resolusi tinggi
+    const cameraConfig = { 
+        facingMode: "environment",
+        width: { ideal: 1280 },
+        height: { ideal: 720 }
+    };
+    
+    html5QrCode.start(cameraConfig, config, 
         (decodedText, decodedResult) => {
             // Bunyikan suara
             suaraBeep();
@@ -444,7 +458,6 @@ function bukaScannerKamera(elemenTarget) {
         tutupScannerKamera();
     });
 }
-
 function tutupScannerKamera() {
     if (html5QrCode) {
         html5QrCode.stop().then(() => {
