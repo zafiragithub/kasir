@@ -1,3 +1,120 @@
+/* Pengaturan Dasar */
+* {
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: #f3f4f6;
+    color: #1f2937;
+    padding: 20px;
+}
+
+/* Tata Letak Utama */
+.container {
+    display: flex;
+    gap: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    height: 90vh;
+}
+
+/* Area Produk */
+.product-section {
+    flex: 2;
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    overflow-y: auto;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 15px;
+    margin-top: 15px;
+}
+
+/* Kartu Produk dengan Transisi Mulus */
+.product-card {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    padding: 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    text-align: center;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    /* Animasi masuk tanpa skeleton */
+    opacity: 0;
+    animation: fadeIn 0.4s ease forwards;
+}
+
+.product-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+    background: #ffffff;
+}
+
+/* Area Keranjang */
+.cart-section {
+    flex: 1;
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+}
+
+.cart-list {
+    flex-grow: 1;
+    overflow-y: auto;
+    margin: 15px 0;
+    border-top: 1px solid #e5e7eb;
+    border-bottom: 1px solid #e5e7eb;
+    padding: 10px 0;
+}
+
+.total-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+/* Tombol Utama */
+.btn-primary {
+    background-color: #2563eb;
+    color: white;
+    border: none;
+    padding: 15px;
+    width: 100%;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.btn-primary:hover {
+    background-color: #1d4ed8;
+}
+
+.btn-primary:active {
+    transform: scale(0.98);
+}
+
+/* Utilitas Animasi */
+.smooth-transition {
+    transition: opacity 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
 /* Gaya Input Kasir Baru */
 .input-group {
     display: flex;
