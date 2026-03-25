@@ -9,37 +9,61 @@ const btnLogin = document.getElementById('btn-login');
 const btnLogout = document.getElementById('btn-logout');
 const namaKasirAktif = document.getElementById('nama-kasir-aktif');
 
-// CEK SESSION: Kalau sebelumnya sudah login & belum logout, langsung masuk
+// CEK SESSION: Kalau sebelumnya sudah login
 if (sessionStorage.getItem('isLoggedIn') === 'true') {
     loginScreen.style.display = 'none';
     appWrapper.style.display = 'block';
     namaKasirAktif.innerText = sessionStorage.getItem('namaKasir') || 'Admin';
-    fetchProduk(); // Baru muat data setelah login
+    fetchProduk(); 
 }
 
-btnLogin.addEventListener('click', () => {
-    const user = loginUser.value;
-    const pass = loginPass.value;
+btnLogin.addEventListener('click', async () => {
+    const user = loginUser.value.trim();
+    const pass = loginPass.value.trim();
 
-    // KREDENSIAL LOGIN (SILAKAN BOS UBAH DI SINI)
-    if (user === 'admin' && pass === '1234') {
-        sessionStorage.setItem('isLoggedIn', 'true');
-        sessionStorage.setItem('namaKasir', user.toUpperCase());
-        namaKasirAktif.innerText = user.toUpperCase();
+    if (!user || !pass) return showToast("Mohon isi Username dan Password!", "error");
+
+    // Kunci tombol saat sedang mengecek ke server
+    btnLogin.disabled = true;
+    btnLogin.innerText = "MEMERIKSA DATA...";
+    btnLogin.style.backgroundColor = "#9ca3af";
+
+    try {
+        const payloadLogin = { action: "login", username: user, password: pass };
         
-        loginScreen.style.display = 'none';
-        appWrapper.style.display = 'block';
-        showToast("Login Berhasil! Selamat bekerja.", "success");
-        
-        fetchProduk(); // Muat data dari server
-    } else {
-        showToast("Username atau Password Salah!", "error");
+        const response = await fetch('/api', { 
+            method: 'POST', 
+            body: JSON.stringify(payloadLogin) 
+        });
+        const result = await response.json();
+
+        if (result.status === 'success') {
+            // Jika sukses, simpan sesi dan nama kasir aslinya
+            sessionStorage.setItem('isLoggedIn', 'true');
+            sessionStorage.setItem('namaKasir', result.nama_kasir);
+            namaKasirAktif.innerText = result.nama_kasir;
+            
+            loginScreen.style.display = 'none';
+            appWrapper.style.display = 'block';
+            showToast(`Login Berhasil! Selamat bekerja, ${result.nama_kasir}.`, "success");
+            
+            fetchProduk(); // Baru muat data setelah sukses login
+        } else {
+            // Jika gagal (username/pass salah)
+            showToast(result.message || "Username atau Password salah!", "error");
+        }
+    } catch (error) {
+        showToast("Gagal terhubung ke server database.", "error");
+    } finally {
+        btnLogin.disabled = false;
+        btnLogin.innerText = "MASUK";
+        btnLogin.style.backgroundColor = "#10b981";
     }
 });
 
 // Fitur Logout
 btnLogout.addEventListener('click', () => {
-    showConfirm("Yakin ingin keluar dari kasir?", (isYes) => {
+    showConfirm("Yakin ingin mengakhiri sesi kasir (Logout)?", (isYes) => {
         if(isYes) {
             sessionStorage.removeItem('isLoggedIn');
             sessionStorage.removeItem('namaKasir');
