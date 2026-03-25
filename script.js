@@ -1,4 +1,7 @@
 // --- STATE APLIKASI ---
+const NAMA_TOKO = "TOKO SEMBAKO MAKMUR"; // <-- Bos tinggal ganti nama toko di sini kapan saja
+let daftarProduk = [];
+// ... (kode lainnya tetap sama)
 let daftarProduk = [];
 let keranjang = [];
 let totalBelanja = 0;
