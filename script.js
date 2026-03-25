@@ -178,7 +178,7 @@ function tampilkanModalStruk(dataTrans) {
     // Menyusun tampilan struk
     let htmlStruk = `
         <div style="text-align: center; border-bottom: 1px dashed #000; padding-bottom: 10px; margin-bottom: 10px;">
-            <h3 style="margin:0;">==== TOKO BOS ====</h3>
+           <h3 style="margin:0;">==== ${NAMA_TOKO} ====</h3>
             <p style="margin:4px 0 0 0; font-size: 12px;">ID: ${dataTrans.id_transaksi}</p>
             <p style="margin:0; font-size: 12px;">Pelanggan/Meja: <b>${dataTrans.nama_meja}</b></p>
         </div>
@@ -234,7 +234,7 @@ document.getElementById('btn-print-thermal').addEventListener('click', async () 
         await port.open({ baudRate: 9600 });
         const writer = port.writable.getWriter();
         
-        let strukText = "==== TOKO BOS ====\n";
+        let strukText = `==== ${NAMA_TOKO} ====\n`;
         strukText += `ID: ${dataStrukAktif.id_transaksi}\n`;
         strukText += `Meja: ${dataStrukAktif.nama_meja}\n`;
         strukText += "------------------\n";
