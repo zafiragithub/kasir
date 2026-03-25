@@ -54,21 +54,28 @@ function showToast(message, type = 'info') {
 const customModal = document.getElementById('custom-modal');
 const customModalTitle = document.getElementById('custom-modal-title');
 const customModalInput = document.getElementById('custom-modal-input');
+const customInputWrapper = document.getElementById('custom-input-wrapper');
+const btnScanCustom = document.getElementById('btn-scan-custom');
 const btnCustomOk = document.getElementById('btn-custom-ok');
 const btnCustomCancel = document.getElementById('btn-custom-cancel');
 let customModalCallback = null;
 
 function showConfirm(message, callback) {
     customModalTitle.innerText = message;
-    customModalInput.style.display = 'none';
+    customInputWrapper.style.display = 'none';
     customModalCallback = callback;
     bukaCustomModal();
 }
 
-function showPrompt(message, defaultValue, callback) {
+// PERBAIKAN: Parameter showCamera ditambahkan
+function showPrompt(message, defaultValue, callback, showCamera = false) {
     customModalTitle.innerText = message;
-    customModalInput.style.display = 'block';
+    customInputWrapper.style.display = 'flex';
     customModalInput.value = defaultValue || '';
+    
+    // Tampilkan tombol kamera khusus menu Cek Harga
+    btnScanCustom.style.display = showCamera ? 'block' : 'none';
+    
     customModalCallback = callback;
     bukaCustomModal();
     setTimeout(() => { customModalInput.focus(); customModalInput.select(); }, 100);
@@ -91,7 +98,7 @@ btnCustomCancel.addEventListener('click', () => {
 
 btnCustomOk.addEventListener('click', () => {
     tutupCustomModal();
-    let result = customModalInput.style.display === 'block' ? customModalInput.value : true;
+    let result = customInputWrapper.style.display === 'flex' ? customModalInput.value : true;
     if (customModalCallback) customModalCallback(result);
 });
 
@@ -383,7 +390,7 @@ document.getElementById('btn-harga').addEventListener('click', () => {
     if(keranjang.length === 0) return showToast("Keranjang kosong!", "error");
     let lastItem = keranjang[keranjang.length - 1];
     
-    showPrompt(`Ubah harga khusus untuk ${lastItem.nama_produk} (Harga Asli: Rp ${lastItem.harga}):`, lastItem.harga, (newHarga) => {
+    showPrompt(`Ubah override harga untuk ${lastItem.nama_produk} (Harga Asli: Rp ${lastItem.harga}):`, lastItem.harga, (newHarga) => {
         let hrgVal = parseInt(newHarga);
         if(!isNaN(hrgVal) && hrgVal >= 0) {
             lastItem.harga = hrgVal; 
@@ -408,17 +415,18 @@ document.getElementById('btn-disc').addEventListener('click', () => {
     });
 });
 
+// PERBAIKAN: Fitur Cek Harga sekarang diaktifkan dengan TRUE agar tombol kamera menyala
 document.getElementById('btn-cek-harga').addEventListener('click', () => {
-    showPrompt("Ketik atau scan kode produk untuk Cek Harga:", "", (kode) => {
+    showPrompt("Arahkan barcode ke kamera atau ketik manual:", "", (kode) => {
         if(kode && kode.trim() !== '') {
             let cari = daftarProduk.find(p => String(p.nama_produk).toLowerCase().includes(kode.toLowerCase()) || String(p.id_produk).toLowerCase() === kode.toLowerCase());
             if(cari) {
-                showToast(`INFO HARGA: ${cari.nama_produk} - Rp ${cari.harga.toLocaleString('id-ID')}`, "info");
+                showToast(`INFO HARGA: ${cari.nama_produk} - Rp ${cari.harga.toLocaleString('id-ID')}`, "success");
             } else {
                 showToast("Produk tidak ditemukan di database.", "error");
             }
         }
-    });
+    }, true); 
 });
 
 document.getElementById('btn-favorit').addEventListener('click', () => showToast("Fitur Favorit akan segera hadir!", "info"));
@@ -609,7 +617,13 @@ function bukaScannerKamera(elemenTarget) {
             }
         } else {
             targetInputScan.value = decodedText;
-            showToast("Barcode berhasil dipindai!", "success");
+            
+            // PERBAIKAN: Jika yang scan adalah modal Cek Harga, langsung proses Enter otomatis
+            if (targetInputScan.id === 'custom-modal-input') {
+                btnCustomOk.click(); 
+            } else {
+                showToast("Barcode berhasil dipindai!", "success");
+            }
         }
         
         tutupScannerKamera();
@@ -621,7 +635,7 @@ function bukaScannerKamera(elemenTarget) {
     .catch((err) => {
         html5QrCode.start({ facingMode: "user" }, config, onScanSuccess, onScanError)
         .catch((err2) => {
-            showToast("Akses kamera ditolak atau tidak ditemukan.", "error");
+            showToast("Akses kamera ditolak atau kamera tidak ditemukan.", "error");
             tutupScannerKamera();
         });
     });
@@ -656,10 +670,17 @@ function suaraBeep() {
     } catch(e) { console.log("Audio tidak didukung"); }
 }
 
+// Pasang Event Listener Tombol Kamera
 btnScanKasir.addEventListener('click', () => bukaScannerKamera(searchInput));
+
 if (btnScanTambah) {
     btnScanTambah.addEventListener('click', () => bukaScannerKamera(document.getElementById('new-id')));
 }
+
+if (btnScanCustom) {
+    btnScanCustom.addEventListener('click', () => bukaScannerKamera(customModalInput));
+}
+
 btnTutupScanner.addEventListener('click', tutupScannerKamera);
 
 // Shortcut Keyboard Kasir (F11 = New, F12 = Bayar)
