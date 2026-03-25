@@ -452,11 +452,11 @@ const btnScanTambah = document.getElementById('btn-scan-tambah');
 const btnTutupScanner = document.getElementById('btn-tutup-scanner');
 let html5QrCode;
 let targetInputScan = null;
-let isProcessingScan = false; // PERBAIKAN: Kunci agar tidak bip berkali-kali
+let isProcessingScan = false;
 
 function bukaScannerKamera(elemenTarget) {
     targetInputScan = elemenTarget; 
-    isProcessingScan = false; // Buka kunci saat kamera mulai
+    isProcessingScan = false; 
     
     scannerModal.style.display = 'flex';
     setTimeout(() => scannerModal.style.opacity = '1', 10);
@@ -464,37 +464,42 @@ function bukaScannerKamera(elemenTarget) {
     html5QrCode = new Html5Qrcode("reader");
     
     const config = { fps: 20, qrbox: { width: 250, height: 100 } };
-    const cameraConfig = { facingMode: "environment" };
     
-    html5QrCode.start(cameraConfig, config, 
-        (decodedText, decodedResult) => {
-            // PERBAIKAN: Rem Otomatis. Jika sedang proses, abaikan scan berikutnya
-            if (isProcessingScan) return; 
-            isProcessingScan = true; 
+    // Fungsi sukses scan kita pisah agar bisa dipanggil 2 kali (Plan A & Plan B)
+    const onScanSuccess = (decodedText, decodedResult) => {
+        if (isProcessingScan) return; 
+        isProcessingScan = true; 
 
-            suaraBeep(); 
+        suaraBeep(); 
+        
+        if (targetInputScan.id === 'cari-produk') {
+            const cari = daftarProduk.find(p => String(p.id_produk).toLowerCase() === String(decodedText).toLowerCase());
             
-            if (targetInputScan.id === 'cari-produk') {
-                // PERBAIKAN: Format angka barcode ke String agar tidak crash
-                const cari = daftarProduk.find(p => String(p.id_produk).toLowerCase() === String(decodedText).toLowerCase());
-                
-                if (cari) {
-                    tambahKeKeranjang(cari); 
-                    targetInputScan.value = ''; 
-                    if(searchDropdown) searchDropdown.style.display = 'none'; 
-                } else {
-                    alert("Barang dengan Barcode " + decodedText + " tidak ditemukan di database!");
-                }
+            if (cari) {
+                tambahKeKeranjang(cari); 
+                targetInputScan.value = ''; 
+                if(searchDropdown) searchDropdown.style.display = 'none'; 
             } else {
-                targetInputScan.value = decodedText;
+                alert("Barang dengan Barcode " + decodedText + " tidak ditemukan di database!");
             }
-            
-            tutupScannerKamera();
-        },
-        (errorMessage) => { /* Abaikan error pencarian fokus */ }
-    ).catch((err) => {
-        alert("Akses kamera ditolak oleh HP/Browser. Pesan Sistem: " + err);
+        } else {
+            targetInputScan.value = decodedText;
+        }
+        
         tutupScannerKamera();
+    };
+
+    const onScanError = (errorMessage) => { /* Abaikan error saat mencari fokus */ };
+
+    // PLAN A: Coba nyalakan kamera belakang (Untuk HP)
+    html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess, onScanError)
+    .catch((err) => {
+        // PLAN B: Jika gagal (karena laptop cuma punya kamera depan), otomatis nyalakan kamera depan
+        html5QrCode.start({ facingMode: "user" }, config, onScanSuccess, onScanError)
+        .catch((err2) => {
+            alert("Akses kamera ditolak atau kamera tidak ditemukan. Pesan: " + err2);
+            tutupScannerKamera();
+        });
     });
 }
 
