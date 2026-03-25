@@ -1,19 +1,60 @@
 /* ==========================================
    1. BASE & LAYOUT UTAMA
 ========================================== */
-body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: #f1f5f9; color: #334155; }
-.smooth-transition { transition: all 0.3s ease; }
-.top-header { background-color: #1e293b; color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+body { 
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+    margin: 0; 
+    padding: 0; 
+    background-color: #f1f5f9; 
+    color: #334155; 
+}
+
+.smooth-transition { 
+    transition: all 0.3s ease; 
+}
+
+.top-header { 
+    background-color: #1e293b; 
+    color: white; 
+    padding: 15px 30px; 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
+}
+
 .logo-area { display: flex; align-items: center; gap: 10px; }
 .logo-area h2 { margin: 0; font-size: 24px; font-weight: 700; letter-spacing: 1px; }
+
 .header-info { display: flex; gap: 30px; text-align: right; }
 .header-info div { display: flex; flex-direction: column; }
 .header-info small { color: #94a3b8; font-size: 11px; font-weight: bold; letter-spacing: 0.5px; }
 .header-info b { font-size: 14px; }
 
-.pos-container { display: flex; height: calc(100vh - 70px); }
-.main-panel { flex: 1; display: flex; flex-direction: column; padding: 20px; overflow-y: auto; }
-.sidebar-panel { width: 320px; background-color: white; border-left: 1px solid #e2e8f0; display: flex; flex-direction: column; padding: 20px; box-shadow: -2px 0 10px rgba(0,0,0,0.02); }
+.pos-container { 
+    display: flex; 
+    height: calc(100vh - 70px); 
+}
+
+.main-panel { 
+    flex: 1; 
+    display: flex; 
+    flex-direction: column; 
+    padding: 20px; 
+    overflow-y: auto; 
+}
+
+.sidebar-panel { 
+    width: 320px; 
+    background-color: white; 
+    border-left: 1px solid #e2e8f0; 
+    display: flex; 
+    flex-direction: column; 
+    padding: 20px; 
+    box-shadow: -2px 0 10px rgba(0,0,0,0.02); 
+    overflow-y: auto;
+}
+
 
 /* ==========================================
    2. INPUT & PENCARIAN
@@ -30,6 +71,7 @@ body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; 
 
 .big-total-section { background: white; padding: 15px 25px; border-radius: 8px; border: 2px dashed #e2e8f0; text-align: right; min-width: 250px; display: flex; flex-direction: column; justify-content: center; }
 .big-total-section h1 { margin: 0; font-size: 36px; color: #1e293b; }
+
 
 /* ==========================================
    3. TOOLBAR & TOMBOL
@@ -53,6 +95,7 @@ body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; 
 .btn-bayar:hover { background: #dc2626; transform: translateY(-2px); box-shadow: 0 6px 8px -1px rgba(239, 68, 68, 0.4); }
 .btn-bayar:disabled { background: #9ca3af; cursor: not-allowed; transform: none; box-shadow: none; }
 
+
 /* ==========================================
    4. TABEL KERANJANG
 ========================================== */
@@ -61,6 +104,7 @@ body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; 
 .cart-table th { background: #ef4444; color: white; padding: 12px 15px; text-align: left; font-size: 13px; position: sticky; top: 0; z-index: 10; }
 .cart-table td { padding: 12px 15px; border-bottom: 1px solid #e2e8f0; font-size: 14px; }
 .cart-table tbody tr:hover { background-color: #f8fafc; }
+
 
 /* ==========================================
    5. RINGKASAN PEMBAYARAN
@@ -71,25 +115,34 @@ body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; 
 .input-group input { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 16px; outline: none; box-sizing: border-box; }
 .input-group input:focus { border-color: #10b981; }
 
+
 /* ==========================================
    6. MODAL UTAMA (POP-UP)
 ========================================== */
 .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); display: none; justify-content: center; align-items: center; z-index: 1000; opacity: 0; backdrop-filter: blur(4px); }
 .modal-content { background: white; padding: 30px; border-radius: 12px; width: 400px; max-width: 90%; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); transform: translateY(0); }
 .modal-actions { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
-
 #struk-preview { background: #fff; padding: 20px; border: 1px solid #e2e8f0; border-radius: 4px; font-family: 'Courier New', Courier, monospace; margin-bottom: 20px; max-height: 400px; overflow-y: auto; color: #000; }
 
+
 /* ==========================================
-   7. TOAST NOTIFICATION (BAJU POP-UP)
+   7. TOAST NOTIFICATION
 ========================================== */
 .toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
 .toast-msg { min-width: 250px; max-width: 350px; padding: 15px 20px; color: #fff; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); display: flex; align-items: center; font-size: 14px; font-weight: 600; animation: slideInToast 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) forwards, fadeOutToast 0.4s ease 2.6s forwards; }
 .toast-success { background-color: #10b981; border-left: 6px solid #059669; }
 .toast-error { background-color: #ef4444; border-left: 6px solid #dc2626; }
 .toast-info { background-color: #3b82f6; border-left: 6px solid #2563eb; }
-@keyframes slideInToast { from { transform: translateX(120%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-@keyframes fadeOutToast { from { opacity: 1; } to { opacity: 0; transform: translateY(-10px); } }
+
+@keyframes slideInToast { 
+    from { transform: translateX(120%); opacity: 0; } 
+    to { transform: translateX(0); opacity: 1; } 
+}
+@keyframes fadeOutToast { 
+    from { opacity: 1; } 
+    to { opacity: 0; transform: translateY(-10px); } 
+}
+
 
 /* ==========================================
    8. GAYA LOGIN SCREEN
@@ -103,6 +156,7 @@ body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; 
 .login-box button { width: 100%; padding: 14px; font-size: 16px; border-radius: 8px; font-weight: bold; margin-top: 10px; border: none; cursor: pointer; background-color: #10b981; color: white; transition: background-color 0.2s; }
 .login-box button:hover { background-color: #059669; }
 
+
 /* ==========================================
    9. GAYA TOMBOL FAVORIT
 ========================================== */
@@ -110,6 +164,7 @@ body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; 
 .btn-fav-item:hover { background: #eff6ff; border-color: #3b82f6; transform: translateY(-2px); box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
 .btn-fav-item span.fav-name { font-weight: 600; font-size: 13px; color: #334155; line-height: 1.2; }
 .btn-fav-item span.fav-price { font-size: 11px; color: #10b981; font-weight: bold; }
+
 
 /* ==========================================
    10. GAYA DASHBOARD LAPORAN
@@ -119,6 +174,7 @@ body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; 
 .report-card h4 { margin: 0 0 10px 0; color: #64748b; font-size: 14px; }
 .report-card h2 { margin: 0; color: #10b981; font-size: 20px; }
 @media (max-width: 600px) { .report-grid { grid-template-columns: 1fr; } }
+
 
 /* ==========================================
    11. GAYA CETAK PDF UNTUK LAPORAN
