@@ -90,7 +90,25 @@ document.addEventListener('click', (e) => {
     }
 });
 
+// Eksekusi Instan jika kasir menekan "Enter" atau pakai Scanner Fisik / Kamera
+searchInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        const kataKunci = e.target.value.toLowerCase().trim();
+        if (!kataKunci) return;
 
+        // Cari barang yang ID/Barcode-nya sama persis
+        const cari = daftarProduk.find(p => p.id_produk.toLowerCase() === kataKunci);
+
+        if (cari) {
+            tambahKeKeranjang(cari);
+            searchInput.value = ''; 
+            searchDropdown.style.display = 'none';
+        } else {
+            alert("Produk tidak ditemukan di database!");
+        }
+    }
+});
 // ==========================================
 // --- 3. LOGIKA KERANJANG BELANJA ---
 // ==========================================
