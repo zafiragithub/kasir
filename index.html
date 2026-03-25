@@ -141,7 +141,12 @@
     <div id="custom-modal" class="modal smooth-transition" style="z-index: 3000;">
         <div class="modal-content" style="text-align: center; width: 320px;">
             <h3 id="custom-modal-title" style="margin-bottom: 15px; font-size: 16px;">Konfirmasi</h3>
-            <input type="text" id="custom-modal-input" class="smooth-transition" style="width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #d1d5db; border-radius: 4px; display: none; text-align: center; font-size: 16px;">
+            
+            <div id="custom-input-wrapper" style="display: none; gap: 8px; margin-bottom: 15px;">
+                <input type="text" id="custom-modal-input" class="smooth-transition" style="flex: 1; padding: 10px; border: 1px solid #d1d5db; border-radius: 4px; text-align: center; font-size: 16px;">
+                <button id="btn-scan-custom" class="btn-primary" style="padding: 10px; font-size: 16px; display: none;" title="Scan Barcode">📷</button>
+            </div>
+
             <div style="display: flex; gap: 10px; justify-content: center;">
                 <button id="btn-custom-ok" class="btn-primary" style="flex: 1; background-color: #10b981;">OK</button>
                 <button id="btn-custom-cancel" class="btn-danger" style="flex: 1;">Batal</button>
