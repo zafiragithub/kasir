@@ -60,7 +60,6 @@ searchInput.addEventListener('input', (e) => {
     const kataKunci = e.target.value.toLowerCase().trim();
     if (!kataKunci) { searchDropdown.style.display = 'none'; return; }
 
-    // PERBAIKAN: Mengubah semua data ID dan Nama menjadi String (Teks) agar tidak crash saat mencari
     const hasil = daftarProduk.filter(p => 
         String(p.nama_produk).toLowerCase().includes(kataKunci) || 
         String(p.id_produk).toLowerCase().includes(kataKunci)
@@ -87,21 +86,18 @@ searchInput.addEventListener('input', (e) => {
     searchDropdown.style.display = 'block';
 });
 
-// Menutup dropdown jika klik di luar area
 document.addEventListener('click', (e) => {
     if (!searchInput.contains(e.target) && !searchDropdown.contains(e.target)) {
         searchDropdown.style.display = 'none';
     }
 });
 
-// Eksekusi Instan jika kasir menekan "Enter" atau pakai Scanner Fisik
 searchInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
         e.preventDefault();
         const kataKunci = e.target.value.toLowerCase().trim();
         if (!kataKunci) return;
 
-        // PERBAIKAN: Pastikan format ID dari database diperlakukan sebagai String (Teks)
         const cari = daftarProduk.find(p => String(p.id_produk).toLowerCase() === kataKunci);
 
         if (cari) {
@@ -120,7 +116,12 @@ searchInput.addEventListener('keydown', (e) => {
 // ==========================================
 function tambahKeKeranjang(produk) {
     const itemAda = keranjang.find(item => item.id_produk === produk.id_produk);
-    if (itemAda) { itemAda.qty += 1; } else { keranjang.push({ ...produk, qty: 1 }); }
+    if (itemAda) { 
+        itemAda.qty += 1; 
+    } else { 
+        // PERBAIKAN: Ingat harga asli dan set diskon 0 saat pertama masuk
+        keranjang.push({ ...produk, qty: 1, diskon: 0 }); 
+    }
     renderKeranjang();
 }
 
@@ -143,20 +144,27 @@ function renderKeranjang() {
         cartTableBody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 20px; color: #9ca3af;">Belum ada item ditambahkan</td></tr>';
     } else {
         keranjang.forEach((item, index) => {
-            const subtotal = item.harga * item.qty;
+            // PERBAIKAN: Hitung harga setelah diskon
+            let diskonPerItem = item.diskon || 0;
+            let hargaSetelahDiskon = item.harga - diskonPerItem;
+            const subtotal = hargaSetelahDiskon * item.qty;
             totalBelanja += subtotal;
             
+            // Efek UI: Harga Coret & Label Diskon
+            let labelDiskon = diskonPerItem > 0 ? `<br><small style="color:#ef4444; font-weight:normal;">Disc: -Rp ${diskonPerItem.toLocaleString('id-ID')}</small>` : '';
+            let hargaCoret = diskonPerItem > 0 ? `<del style="color:#9ca3af; font-size:12px;">${item.harga.toLocaleString('id-ID')}</del><br>` : '';
+
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td style="text-align:center;">${index + 1}</td>
                 <td>${item.id_produk}</td>
-                <td style="font-weight:bold;">${item.nama_produk}</td>
+                <td style="font-weight:bold;">${item.nama_produk}${labelDiskon}</td>
                 <td>
                     <button onclick="ubahQty(${index}, -1)" style="padding:2px 6px; cursor:pointer;">-</button>
                     <span style="display:inline-block; width:20px; text-align:center; font-weight:bold;">${item.qty}</span>
                     <button onclick="ubahQty(${index}, 1)" style="padding:2px 6px; cursor:pointer;">+</button>
                 </td>
-                <td>${item.harga.toLocaleString('id-ID')}</td>
+                <td>${hargaCoret}${hargaSetelahDiskon.toLocaleString('id-ID')}</td>
                 <td>
                     <div style="display:flex; justify-content:space-between; align-items:center;">
                         <span style="font-weight:bold;">${subtotal.toLocaleString('id-ID')}</span>
@@ -222,8 +230,8 @@ async function prosesPembayaran() {
         const result = await response.json();
         
         if (result.status === 'success') {
-            tampilkanModalStruk(dataTransaksi); // Munculkan struk
-            resetTransaksi(); // Bersihkan background layar kasir
+            tampilkanModalStruk(dataTransaksi); 
+            resetTransaksi(); 
         }
     } catch (error) {
         alert("Gagal memproses transaksi. Cek koneksi.");
@@ -292,20 +300,23 @@ document.getElementById('btn-qty').addEventListener('click', () => {
 document.getElementById('btn-harga').addEventListener('click', () => {
     if(keranjang.length === 0) return alert("Keranjang kosong!");
     let lastItem = keranjang[keranjang.length - 1];
-    let newHarga = prompt(`Ubah harga untuk ${lastItem.nama_produk} (Harga Asli: Rp ${lastItem.harga}):`, lastItem.harga);
-    if(newHarga && !isNaN(newHarga)) {
-        lastItem.harga = parseInt(newHarga);
+    let newHarga = prompt(`Ubah override harga untuk ${lastItem.nama_produk} (Harga Database: Rp ${lastItem.harga}):`, lastItem.harga);
+    let hrgVal = parseInt(newHarga);
+    if(!isNaN(hrgVal) && hrgVal >= 0) {
+        lastItem.harga = hrgVal; // Timpa harga asli (Override)
+        lastItem.diskon = 0; // Reset diskon jika harga di-override manual
         renderKeranjang();
     }
 });
 
+// PERBAIKAN: Logika Diskon dipisah dari Harga Utama
 document.getElementById('btn-disc').addEventListener('click', () => {
     if(keranjang.length === 0) return alert("Keranjang kosong!");
     let lastItem = keranjang[keranjang.length - 1];
-    let disc = prompt(`Masukkan diskon nominal (Rp) untuk ${lastItem.nama_produk}:`, 0);
-    if(disc && !isNaN(disc) && parseInt(disc) < lastItem.harga) {
-        lastItem.harga -= parseInt(disc);
-        lastItem.nama_produk = lastItem.nama_produk + " (Disc)";
+    let disc = prompt(`Masukkan Nominal Diskon (Rp) PER ITEM untuk ${lastItem.nama_produk}:`, lastItem.diskon || 0);
+    let discVal = parseInt(disc);
+    if(!isNaN(discVal) && discVal >= 0 && discVal <= lastItem.harga) {
+        lastItem.diskon = discVal; // Simpan nilai diskonnya saja
         renderKeranjang();
     }
 });
@@ -396,9 +407,20 @@ function tampilkanModalStruk(dataTrans) {
     `;
     
     JSON.parse(dataTrans.daftar_pesanan).forEach(item => {
-        htmlStruk += `<tr><td colspan="2"><b>${item.nama_produk}</b></td></tr>
-            <tr><td>${item.qty} x ${item.harga.toLocaleString('id-ID')}</td>
-            <td style="text-align: right;">${(item.harga * item.qty).toLocaleString('id-ID')}</td></tr>`;
+        // PERBAIKAN: Hitung subtotal dan siapkan baris diskon jika ada
+        let diskonPerItem = item.diskon || 0;
+        let hargaSetelahDiskon = item.harga - diskonPerItem;
+        let subtotal = hargaSetelahDiskon * item.qty;
+
+        htmlStruk += `<tr><td colspan="2"><b>${item.nama_produk}</b></td></tr>`;
+        
+        // Tampilkan info diskon di HTML Struk
+        if (diskonPerItem > 0) {
+            htmlStruk += `<tr><td colspan="2" style="color:#ef4444; font-size: 12px; padding-left: 10px; font-style: italic;">Disc: -Rp ${diskonPerItem.toLocaleString('id-ID')} /item</td></tr>`;
+        }
+
+        htmlStruk += `<tr><td>${item.qty} x ${hargaSetelahDiskon.toLocaleString('id-ID')}</td>
+            <td style="text-align: right;">${subtotal.toLocaleString('id-ID')}</td></tr>`;
     });
 
     htmlStruk += `</table>
@@ -429,9 +451,20 @@ document.getElementById('btn-print-thermal').addEventListener('click', async () 
         const writer = port.writable.getWriter();
         
         let strukText = `==== ${NAMA_TOKO} ====\nID: ${dataStrukAktif.id_transaksi}\nCustomer: ${dataStrukAktif.nama_meja}\n------------------\n`;
+        
         JSON.parse(dataStrukAktif.daftar_pesanan).forEach(item => {
-            strukText += `${item.nama_produk}\n${item.qty} x ${item.harga} = ${item.harga * item.qty}\n`;
+            // PERBAIKAN: Format teks printer thermal untuk menampilkan diskon
+            let diskonPerItem = item.diskon || 0;
+            let hargaSetelahDiskon = item.harga - diskonPerItem;
+            let subtotal = hargaSetelahDiskon * item.qty;
+
+            strukText += `${item.nama_produk}\n`;
+            if (diskonPerItem > 0) {
+                strukText += `  (Disc per item: -${diskonPerItem})\n`;
+            }
+            strukText += `${item.qty} x ${hargaSetelahDiskon} = ${subtotal}\n`;
         });
+
         strukText += `------------------\nTOTAL: Rp ${dataStrukAktif.total_harga}\nBAYAR: Rp ${dataStrukAktif.uang_bayar}\nKEMBALI: Rp ${dataStrukAktif.uang_kembali}\nTerima Kasih!\n\n\n`;
         
         const encoder = new TextEncoder();
@@ -465,7 +498,6 @@ function bukaScannerKamera(elemenTarget) {
     
     const config = { fps: 20, qrbox: { width: 250, height: 100 } };
     
-    // Fungsi sukses scan kita pisah agar bisa dipanggil 2 kali (Plan A & Plan B)
     const onScanSuccess = (decodedText, decodedResult) => {
         if (isProcessingScan) return; 
         isProcessingScan = true; 
@@ -489,12 +521,10 @@ function bukaScannerKamera(elemenTarget) {
         tutupScannerKamera();
     };
 
-    const onScanError = (errorMessage) => { /* Abaikan error saat mencari fokus */ };
+    const onScanError = (errorMessage) => { /* Abaikan error pencarian fokus */ };
 
-    // PLAN A: Coba nyalakan kamera belakang (Untuk HP)
     html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess, onScanError)
     .catch((err) => {
-        // PLAN B: Jika gagal (karena laptop cuma punya kamera depan), otomatis nyalakan kamera depan
         html5QrCode.start({ facingMode: "user" }, config, onScanSuccess, onScanError)
         .catch((err2) => {
             alert("Akses kamera ditolak atau kamera tidak ditemukan. Pesan: " + err2);
