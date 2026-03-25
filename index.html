@@ -24,7 +24,10 @@
             <div class="input-total-row">
                 <div class="input-section">
                     <label>+ TAMBAH ITEM</label>
-                    <input type="text" id="cari-produk" class="smooth-transition" placeholder="Ketik nama atau kode item...">
+                    <div style="display: flex; gap: 8px;">
+                        <input type="text" id="cari-produk" class="smooth-transition" placeholder="Ketik nama atau kode item..." style="flex: 1;">
+                        <button id="btn-scan-kasir" class="btn-primary" style="padding: 10px 15px; font-size: 18px;" title="Nyalakan Kamera Scanner">📷</button>
+                    </div>
                     <div id="search-dropdown" class="dropdown smooth-transition" style="display: none;"></div>
                 </div>
                 <div class="big-total-section">
