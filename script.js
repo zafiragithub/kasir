@@ -90,7 +90,7 @@ document.addEventListener('click', (e) => {
     }
 });
 
-// Eksekusi Instan jika kasir menekan "Enter" atau pakai Scanner Fisik / Kamera
+// Eksekusi Instan jika kasir menekan "Enter" atau pakai Scanner Fisik
 searchInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
         e.preventDefault();
@@ -109,6 +109,8 @@ searchInput.addEventListener('keydown', (e) => {
         }
     }
 });
+
+
 // ==========================================
 // --- 3. LOGIKA KERANJANG BELANJA ---
 // ==========================================
@@ -319,14 +321,12 @@ document.getElementById('btn-favorit').addEventListener('click', () => alert("Fi
 // ==========================================
 // --- 7. LOGIKA TAMBAH PRODUK BARU ---
 // ==========================================
-// Buka Modal Tambah
 btnTambahProduk.addEventListener('click', () => {
     modalProduk.style.display = 'flex';
     setTimeout(() => modalProduk.style.opacity = '1', 10);
     document.getElementById('new-id').focus();
 });
 
-// Tutup Modal Tambah
 document.getElementById('btn-batal-produk').addEventListener('click', () => {
     modalProduk.style.opacity = '0';
     setTimeout(() => {
@@ -337,7 +337,6 @@ document.getElementById('btn-batal-produk').addEventListener('click', () => {
     }, 300);
 });
 
-// Eksekusi Simpan ke Server
 btnSimpanProduk.addEventListener('click', async () => {
     const pId = document.getElementById('new-id').value;
     const pNama = document.getElementById('new-nama').value;
@@ -366,7 +365,7 @@ btnSimpanProduk.addEventListener('click', async () => {
         if (result.status === 'success') {
             alert("Produk berhasil ditambahkan!");
             document.getElementById('btn-batal-produk').click(); 
-            fetchProduk(); // Refresh data di background
+            fetchProduk(); 
         }
     } catch (error) {
         alert("Gagal menyimpan produk. Cek koneksi.");
@@ -463,18 +462,17 @@ function bukaScannerKamera(elemenTarget) {
     
     html5QrCode.start(cameraConfig, config, 
         (decodedText, decodedResult) => {
-            suaraBeep(); // Bunyikan suara Tiiit!
+            suaraBeep(); // Bunyikan suara
             
-            // Cek siapa yang memanggil kamera
+            // JIKA KASIR YANG SCAN: Langsung cari dan masukkan keranjang
             if (targetInputScan.id === 'cari-produk') {
-                // JIKA KASIR YANG SCAN: Langsung cari dan masukkan keranjang
                 const cari = daftarProduk.find(p => p.id_produk.toLowerCase() === decodedText.toLowerCase());
                 if (cari) {
                     tambahKeKeranjang(cari); // Langsung masuk keranjang!
                     targetInputScan.value = ''; // Kosongkan input
-                    searchDropdown.style.display = 'none'; // Tutup dropdown
+                    if(searchDropdown) searchDropdown.style.display = 'none'; // Tutup dropdown
                 } else {
-                    alert("Barang dengan Barcode " + decodedText + " tidak ditemukan!");
+                    alert("Barang dengan Barcode " + decodedText + " tidak ditemukan di database!");
                 }
             } else {
                 // JIKA MENU TAMBAH PRODUK YANG SCAN: Cuma isi teksnya saja
@@ -483,11 +481,6 @@ function bukaScannerKamera(elemenTarget) {
             
             tutupScannerKamera();
         },
-        (errorMessage) => { /* Abaikan error pencarian fokus */ }
-    ).catch((err) => {
-        alert("Akses kamera ditolak. Pesan Sistem: " + err);
-        tutupScannerKamera();
-    });
         (errorMessage) => { /* Abaikan error pencarian fokus */ }
     ).catch((err) => {
         alert("Akses kamera ditolak oleh HP/Browser. Pesan Sistem: " + err);
