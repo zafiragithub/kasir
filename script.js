@@ -1,4 +1,65 @@
 // ==========================================
+// --- FITUR LOGIN (GERBANG DEPAN) ---
+// ==========================================
+const loginScreen = document.getElementById('login-screen');
+const appWrapper = document.getElementById('app-wrapper');
+const loginUser = document.getElementById('login-user');
+const loginPass = document.getElementById('login-pass');
+const btnLogin = document.getElementById('btn-login');
+const btnLogout = document.getElementById('btn-logout');
+const namaKasirAktif = document.getElementById('nama-kasir-aktif');
+
+// CEK SESSION: Kalau sebelumnya sudah login & belum logout, langsung masuk
+if (sessionStorage.getItem('isLoggedIn') === 'true') {
+    loginScreen.style.display = 'none';
+    appWrapper.style.display = 'block';
+    namaKasirAktif.innerText = sessionStorage.getItem('namaKasir') || 'Admin';
+    fetchProduk(); // Baru muat data setelah login
+}
+
+btnLogin.addEventListener('click', () => {
+    const user = loginUser.value;
+    const pass = loginPass.value;
+
+    // KREDENSIAL LOGIN (SILAKAN BOS UBAH DI SINI)
+    if (user === 'admin' && pass === '1234') {
+        sessionStorage.setItem('isLoggedIn', 'true');
+        sessionStorage.setItem('namaKasir', user.toUpperCase());
+        namaKasirAktif.innerText = user.toUpperCase();
+        
+        loginScreen.style.display = 'none';
+        appWrapper.style.display = 'block';
+        showToast("Login Berhasil! Selamat bekerja.", "success");
+        
+        fetchProduk(); // Muat data dari server
+    } else {
+        showToast("Username atau Password Salah!", "error");
+    }
+});
+
+// Fitur Logout
+btnLogout.addEventListener('click', () => {
+    showConfirm("Yakin ingin keluar dari kasir?", (isYes) => {
+        if(isYes) {
+            sessionStorage.removeItem('isLoggedIn');
+            sessionStorage.removeItem('namaKasir');
+            loginUser.value = '';
+            loginPass.value = '';
+            
+            appWrapper.style.display = 'none';
+            loginScreen.style.display = 'flex';
+            showToast("Anda berhasil logout.", "info");
+        }
+    });
+});
+
+// Tombol Enter untuk Login
+loginPass.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') btnLogin.click();
+});
+
+
+// ==========================================
 // --- STATE APLIKASI & ELEMEN DOM UTAMA ---
 // ==========================================
 const NAMA_TOKO = "TOKO BOS"; 
@@ -67,13 +128,11 @@ function showConfirm(message, callback) {
     bukaCustomModal();
 }
 
-// PERBAIKAN: Parameter showCamera ditambahkan
 function showPrompt(message, defaultValue, callback, showCamera = false) {
     customModalTitle.innerText = message;
     customInputWrapper.style.display = 'flex';
     customModalInput.value = defaultValue || '';
     
-    // Tampilkan tombol kamera khusus menu Cek Harga
     btnScanCustom.style.display = showCamera ? 'block' : 'none';
     
     customModalCallback = callback;
@@ -415,7 +474,6 @@ document.getElementById('btn-disc').addEventListener('click', () => {
     });
 });
 
-// PERBAIKAN: Fitur Cek Harga sekarang diaktifkan dengan TRUE agar tombol kamera menyala
 document.getElementById('btn-cek-harga').addEventListener('click', () => {
     showPrompt("Arahkan barcode ke kamera atau ketik manual:", "", (kode) => {
         if(kode && kode.trim() !== '') {
@@ -618,7 +676,6 @@ function bukaScannerKamera(elemenTarget) {
         } else {
             targetInputScan.value = decodedText;
             
-            // PERBAIKAN: Jika yang scan adalah modal Cek Harga, langsung proses Enter otomatis
             if (targetInputScan.id === 'custom-modal-input') {
                 btnCustomOk.click(); 
             } else {
@@ -688,8 +745,3 @@ document.addEventListener('keydown', (e) => {
     if (e.key === 'F12') { e.preventDefault(); prosesPembayaran(); }
     if (e.key === 'F11') { e.preventDefault(); document.getElementById('btn-new').click(); }
 });
-
-// ==========================================
-// --- JALANKAN SAAT PERTAMA DIBUKA ---
-// ==========================================
-fetchProduk();
