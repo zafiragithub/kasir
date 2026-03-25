@@ -3,65 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Kasir Pintar</title>
+    <title>POS Sistem Meriah</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        
-        <main class="product-section">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
-                <h2 style="margin: 0;">Daftar Menu</h2>
-                <input type="text" id="cari-produk" placeholder="Cari nama produk..." class="input-kasir smooth-transition" style="flex-grow: 1; max-width: 300px;">
+    <header class="top-header">
+        <div class="logo-area">
+            <span style="color: #ef4444; font-size: 24px;">🧰</span> 
+            <h2>TOKO BOS</h2>
+        </div>
+        <div class="header-info">
+            <div><small>CUSTOMER</small><br><b>CASH / UMUM</b></div>
+            <div><small>TANGGAL</small><br><b id="tanggal-hari-ini">-</b></div>
+            <div><small>KASIR</small><br><b>Admin 1</b></div>
+        </div>
+    </header>
+
+    <div class="pos-container">
+        <main class="main-panel">
+            <div class="input-total-row">
+                <div class="input-section">
+                    <label>+ TAMBAH ITEM</label>
+                    <input type="text" id="cari-produk" class="smooth-transition" placeholder="Ketik nama atau kode item...">
+                    <div id="search-dropdown" class="dropdown smooth-transition" style="display: none;"></div>
+                </div>
+                <div class="big-total-section">
+                    <span style="color: #ef4444; font-weight: bold;">Total</span>
+                    <h1 id="total-price-big">Rp. 0</h1>
+                </div>
             </div>
-            
-            <p id="loading-text" class="smooth-transition">Memuat data produk...</p>
-            
-            <div id="product-grid" class="grid"></div>
+
+            <div class="action-toolbar">
+                <button>📄 NEW (F11)</button>
+                <button>📂 OPEN</button>
+                <button>🔢 QTY (F4)</button>
+                <button>🗑️ HAPUS ITEM</button>
+            </div>
+
+            <div class="table-container">
+                <table class="cart-table">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Kode Item</th>
+                            <th>Nama Item</th>
+                            <th>Qty</th>
+                            <th>Harga</th>
+                            <th>Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cart-table-body">
+                        <tr><td colspan="6" style="text-align: center; padding: 20px; color: #9ca3af;">Belum ada item ditambahkan</td></tr>
+                    </tbody>
+                </table>
+            </div>
         </main>
 
-        <aside class="cart-section">
-            <h2>Keranjang</h2>
-            
-            <div id="cart-items" class="cart-list">
-                <p class="empty-cart-msg">Keranjang masih kosong</p>
+        <aside class="sidebar-panel">
+            <div class="sidebar-buttons">
+                <button>⭐ FAVORIT</button>
+                <button>💲 HARGA</button>
+                <button>🏷️ DISC ITEM</button>
+                <button>👤 MEMBER</button>
+                <button>🔍 CEK HARGA</button>
             </div>
             
-            <div class="cart-summary">
+            <div class="payment-summary">
                 <div class="input-group">
-                    <label>Nama / No. Meja</label>
-                    <input type="text" id="nama-pembeli" placeholder="Misal: Meja 4 / Budi" class="input-kasir smooth-transition">
+                    <label>Nama / Meja:</label>
+                    <input type="text" id="nama-pembeli" class="smooth-transition">
                 </div>
                 <div class="input-group">
-                    <label>Uang Bayar (Rp)</label>
-                    <input type="number" id="uang-bayar" placeholder="0" class="input-kasir smooth-transition">
+                    <label>Uang Bayar:</label>
+                    <input type="number" id="uang-bayar" class="smooth-transition">
                 </div>
-
-                <div class="total-row">
-                    <h3>Total Harga:</h3>
-                    <h3 id="total-price">Rp 0</h3>
+                <div style="display: flex; justify-content: space-between; margin-top: 10px; font-weight: bold;">
+                    <span>KEMBALI:</span>
+                    <span id="uang-kembali" style="color: #10b981;">Rp. 0</span>
                 </div>
-                <div class="total-row">
-                    <h3>Kembalian:</h3>
-                    <h3 id="uang-kembali" style="color: #10b981;">Rp 0</h3>
-                </div>
-
-                <button id="btn-checkout" class="btn-primary">Lanjutkan Pembayaran</button>
             </div>
+
+            <button id="btn-checkout" class="btn-bayar smooth-transition">BAYAR (F12)</button>
         </aside>
+    </div>
 
-    </div>
-<div id="struk-modal" class="modal smooth-transition">
-        <div class="modal-content">
-            <div id="struk-preview">
-                </div>
-            <div class="modal-actions">
-                <button id="btn-print-thermal" class="btn-primary" style="margin-bottom: 8px;">🖨️ Cetak Thermal</button>
-                <button id="btn-download-pdf" class="btn-secondary" style="margin-bottom: 8px;">📄 Download PDF / Print</button>
-                <button id="btn-tutup-modal" class="btn-danger">Tutup</button>
-            </div>
-        </div>
-    </div>
     <script src="script.js"></script>
 </body>
 </html>
