@@ -411,7 +411,6 @@ let html5QrCode;
 let targetInputScan = null; // Mengingat input mana yang meminta scan
 
 // Fungsi untuk menyalakan kamera dengan target spesifik
-// Fungsi untuk menyalakan kamera dengan target spesifik
 function bukaScannerKamera(elemenTarget) {
     targetInputScan = elemenTarget; // Simpan elemen input yang akan diisi
     
@@ -420,19 +419,14 @@ function bukaScannerKamera(elemenTarget) {
 
     html5QrCode = new Html5Qrcode("reader");
     
-    // 1. SETTING SUPER TAJAM: Bikin area scan memanjang & FPS dinaikkan
+    // 1. SETTING SUPER TAJAM (Rasio disesuaikan, Resolusi HP tidak dipaksa)
     const config = { 
-        fps: 20, // Dipercepat agar lebih responsif menangkap gambar
-        qrbox: { width: 300, height: 120 }, // Bentuk persegi panjang, pas untuk barcode garis
-        aspectRatio: 1.777778 // Rasio layar 16:9
+        fps: 20, 
+        qrbox: { width: 250, height: 100 } // Area scan disesuaikan agar cocok di layar HP
     };
     
-    // 2. SETTING KAMERA HD: Paksa pakai kamera belakang dengan resolusi tinggi
-    const cameraConfig = { 
-        facingMode: "environment",
-        width: { ideal: 1280 },
-        height: { ideal: 720 }
-    };
+    // 2. SETTING KAMERA ANTI-REWEL (Cukup minta kamera belakang tanpa paksa resolusi)
+    const cameraConfig = { facingMode: "environment" };
     
     html5QrCode.start(cameraConfig, config, 
         (decodedText, decodedResult) => {
@@ -454,7 +448,8 @@ function bukaScannerKamera(elemenTarget) {
             // Biarkan kosong, abaikan error saat kamera mencari fokus
         }
     ).catch((err) => {
-        alert("Gagal mengakses kamera. Pastikan browser diizinkan menggunakan kamera.");
+        // Menampilkan pesan error ASLI dari browser supaya kita tahu penyebabnya
+        alert("Akses kamera ditolak oleh HP/Browser. Pesan Sistem: " + err);
         tutupScannerKamera();
     });
 }
