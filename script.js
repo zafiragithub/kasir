@@ -86,7 +86,7 @@ loginPass.addEventListener('keydown', (e) => {
 // ==========================================
 // --- STATE APLIKASI & ELEMEN DOM UTAMA ---
 // ==========================================
-const NAMA_TOKO = "TOKO BOS"; 
+const NAMA_TOKO = "UMKM MELIMPAH"; 
 let daftarProduk = [];
 let keranjang = [];
 let totalBelanja = 0;
