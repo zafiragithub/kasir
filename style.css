@@ -34,37 +34,42 @@ body {
     letter-spacing: 1px; 
     text-shadow: 2px 2px 4px rgba(0,0,0,0.4); 
 }
-
-/* PERBAIKAN TAMPILAN CUSTOMER, TANGGAL, KASIR */
+/* PERBAIKAN TAMPILAN CUSTOMER, TANGGAL, KASIR (SUPER RAPAT & SEIMBANG) */
 .header-info { 
     display: flex; 
-    gap: 25px; /* Jarak antar kolom Info */
+    gap: 30px; /* Jarak antarkolom */
     text-align: right; 
     align-items: center; 
 }
+
 .header-info div { 
-    display: flex; 
-    flex-direction: column; 
-    justify-content: center; 
-    line-height: 1.2; /* <-- Kunci Utama: Jarak atas-bawah dirapatkan! */
+    display: block; /* Berubah jadi block agar stabil */
 }
+
 .header-info small { 
-    color: #94a3b8; /* Warna abu-abu elegan */
-    font-size: 10px; 
+    color: #cbd5e1; 
+    font-size: 11px; /* Dibesarkan sedikit agar lebih selaras */
     font-weight: 700; 
-    letter-spacing: 1px; 
-    margin-bottom: 2px; /* Jarak ke tulisan tebal di bawahnya sangat tipis */
+    letter-spacing: 0.5px; 
+    display: block; /* Paksa teks di bawahnya turun otomatis */
+    margin-bottom: 1px; /* Jarak menempel ke teks bawah */
 }
+
 .header-info b { 
-    font-size: 14px; 
+    font-size: 14px; /* Ukuran diseimbangkan dengan judulnya */
     color: #ffffff; 
-    font-weight: 600; 
+    font-weight: 700; 
+}
+
+/* Matikan <br> bawaan HTML yang bikin spasi ganda membandel */
+.header-info div br { 
+    display: none; 
 }
 
 /* Penyesuaian tinggi area utama agar tidak terpotong */
 .pos-container { 
     display: flex; 
-    height: calc(100vh - 58px); /* Disesuaikan dengan tinggi header yang baru */
+    height: calc(100vh - 58px); 
 }
 
 .main-panel { 
@@ -84,7 +89,8 @@ body {
     padding: 20px; 
     box-shadow: -2px 0 10px rgba(0,0,0,0.02); 
     overflow-y: auto;
-}/* ==========================================
+}
+/* ==========================================
    2. INPUT & PENCARIAN
 ========================================== */
 .input-total-row { display: flex; justify-content: space-between; gap: 20px; margin-bottom: 20px; }
