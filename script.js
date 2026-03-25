@@ -511,9 +511,52 @@ document.getElementById('btn-cek-harga').addEventListener('click', () => {
     }, true); 
 });
 
-document.getElementById('btn-favorit').addEventListener('click', () => showToast("Fitur Favorit akan segera hadir!", "info"));
+// ==========================================
+// --- FITUR MENU FAVORIT (JALAN PINTAS) ---
+// ==========================================
+const modalFavorit = document.getElementById('modal-favorit');
+const gridFavorit = document.getElementById('grid-favorit');
+const btnTutupFavorit = document.getElementById('btn-tutup-favorit');
 
+document.getElementById('btn-favorit').addEventListener('click', () => {
+    // Kosongkan area grid terlebih dahulu
+    if(gridFavorit) gridFavorit.innerHTML = '';
+    
+    // Saring barang yang kolom favoritnya tertulis "YA" (kolom F di Google Sheets)
+    const produkFavorit = daftarProduk.filter(p => p.favorit === 'YA');
+    
+    if (produkFavorit.length === 0) {
+        if(gridFavorit) gridFavorit.innerHTML = '<p style="grid-column: 1 / -1; color: #9ca3af; font-size: 14px;">Belum ada produk favorit. Ketik "YA" di kolom F (Favorit) pada Google Sheets.</p>';
+    } else {
+        // Buat tombol untuk masing-masing barang favorit
+        produkFavorit.forEach(p => {
+            const btn = document.createElement('button');
+            btn.className = 'btn-fav-item smooth-transition';
+            btn.innerHTML = `<span class="fav-name">${p.nama_produk}</span><span class="fav-price">Rp ${p.harga.toLocaleString('id-ID')}</span>`;
+            
+            // Jika tombol diklik, langsung masuk keranjang
+            btn.addEventListener('click', () => {
+                tambahKeKeranjang(p);
+                showToast(`${p.nama_produk} ditambahkan!`, "success");
+            });
+            
+            if(gridFavorit) gridFavorit.appendChild(btn);
+        });
+    }
+    
+    // Tampilkan Pop-up
+    if(modalFavorit) {
+        modalFavorit.style.display = 'flex';
+        setTimeout(() => modalFavorit.style.opacity = '1', 10);
+    }
+});
 
+if (btnTutupFavorit) {
+    btnTutupFavorit.addEventListener('click', () => {
+        modalFavorit.style.opacity = '0';
+        setTimeout(() => modalFavorit.style.display = 'none', 300);
+    });
+}
 // ==========================================
 // --- 7. LOGIKA TAMBAH PRODUK BARU ---
 // ==========================================
