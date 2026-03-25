@@ -63,3 +63,44 @@ body { background-color: #f3f4f6; color: #111827; height: 100vh; display: flex; 
     .modal { background: none; position: absolute; }
     .modal-content { box-shadow: none; width: 100%; }
 }
+/* ==========================================
+   GAYA TOAST NOTIFICATION
+========================================== */
+.toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.toast-msg {
+    min-width: 250px;
+    max-width: 350px;
+    padding: 15px 20px;
+    color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    font-weight: 600;
+    /* Animasi masuk dari kanan, lalu hilang */
+    animation: slideInToast 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) forwards, fadeOutToast 0.4s ease 2.6s forwards;
+}
+
+.toast-success { background-color: #10b981; border-left: 6px solid #059669; }
+.toast-error { background-color: #ef4444; border-left: 6px solid #dc2626; }
+.toast-info { background-color: #3b82f6; border-left: 6px solid #2563eb; }
+
+@keyframes slideInToast {
+    from { transform: translateX(120%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes fadeOutToast {
+    from { opacity: 1; }
+    to { opacity: 0; transform: translateY(-10px); }
+}
