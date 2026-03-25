@@ -7,89 +7,100 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <header class="top-header">
-        <div class="logo-area">
-            <span style="color: #ef4444; font-size: 24px;">🧰</span> 
-            <h2>TOKO BOS</h2>
+
+    <div id="login-screen">
+        <div class="login-box smooth-transition">
+            <span style="font-size: 40px; display: block; margin-bottom: 10px;">🧰</span>
+            <h2>Login Kasir</h2>
+            <input type="text" id="login-user" placeholder="Username">
+            <input type="password" id="login-pass" placeholder="Password">
+            <button id="btn-login" class="btn-primary" style="background-color: #10b981;">MASUK</button>
         </div>
-        <div class="header-info">
-            <div><small>CUSTOMER</small><br><b id="display-customer">CASH / UMUM</b></div>
-            <div><small>TANGGAL</small><br><b id="tanggal-hari-ini">-</b></div>
-            <div><small>KASIR</small><br><b>Admin 1</b></div>
-        </div>
-    </header>
-
-    <div class="pos-container">
-        <main class="main-panel">
-            <div class="input-total-row">
-                <div class="input-section">
-                    <label>+ TAMBAH ITEM</label>
-                    <div style="display: flex; gap: 8px;">
-                        <input type="text" id="cari-produk" class="smooth-transition" placeholder="Ketik nama atau kode item..." style="flex: 1;">
-                        <button id="btn-scan-kasir" class="btn-primary" style="padding: 10px 15px; font-size: 18px;" title="Nyalakan Kamera Scanner">📷</button>
-                    </div>
-                    <div id="search-dropdown" class="dropdown smooth-transition" style="display: none;"></div>
-                </div>
-                <div class="big-total-section">
-                    <span style="color: #ef4444; font-weight: bold;">Total</span>
-                    <h1 id="total-price-big">Rp. 0</h1>
-                </div>
-            </div>
-
-            <div class="action-toolbar">
-                <button id="btn-new">📄 NEW (F11)</button>
-                <button id="btn-open">📂 OPEN DRAFT</button>
-                <button id="btn-qty">🔢 QTY (F4)</button>
-                <button id="btn-hapus-semua">🗑️ HAPUS SEMUA</button>
-                <button id="btn-tambah-produk" style="background: #10b981; color: white; border-color: #10b981;">➕ TAMBAH PRODUK</button>
-            </div>
-
-            <div class="table-container">
-                <table class="cart-table">
-                    <thead>
-                        <tr>
-                            <th>No</th>
-                            <th>Kode Item</th>
-                            <th>Nama Item</th>
-                            <th>Qty</th>
-                            <th>Harga</th>
-                            <th>Subtotal</th>
-                        </tr>
-                    </thead>
-                    <tbody id="cart-table-body">
-                        <tr><td colspan="6" style="text-align: center; padding: 20px; color: #9ca3af;">Belum ada item ditambahkan</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </main>
-
-        <aside class="sidebar-panel">
-            <div class="sidebar-buttons">
-                <button id="btn-favorit">⭐ FAVORIT</button>
-                <button id="btn-harga">💲 HARGA</button>
-                <button id="btn-disc">🏷️ DISC ITEM</button>
-                <button id="btn-member">👤 MEMBER</button>
-                <button id="btn-cek-harga">🔍 CEK HARGA</button>
-            </div>
-            
-            <div class="payment-summary">
-                <input type="hidden" id="nama-pembeli" value="CASH / UMUM">
-
-                <div class="input-group">
-                    <label>Uang Bayar:</label>
-                    <input type="number" id="uang-bayar" class="smooth-transition">
-                </div>
-                <div style="display: flex; justify-content: space-between; margin-top: 10px; font-weight: bold;">
-                    <span>KEMBALI:</span>
-                    <span id="uang-kembali" style="color: #10b981;">Rp. 0</span>
-                </div>
-            </div>
-
-            <button id="btn-checkout" class="btn-bayar smooth-transition">BAYAR (F12)</button>
-        </aside>
     </div>
 
-    <div id="struk-modal" class="modal smooth-transition">
+    <div id="app-wrapper" style="display: none;">
+        <header class="top-header">
+            <div class="logo-area">
+                <span style="color: #ef4444; font-size: 24px;">🧰</span> 
+                <h2>TOKO BOS</h2>
+            </div>
+            <div class="header-info">
+                <div><small>CUSTOMER</small><br><b id="display-customer">CASH / UMUM</b></div>
+                <div><small>TANGGAL</small><br><b id="tanggal-hari-ini">-</b></div>
+                <div><small>KASIR</small><br><b id="nama-kasir-aktif">Admin</b></div>
+            </div>
+        </header>
+
+        <div class="pos-container">
+            <main class="main-panel">
+                <div class="input-total-row">
+                    <div class="input-section">
+                        <label>+ TAMBAH ITEM</label>
+                        <div style="display: flex; gap: 8px;">
+                            <input type="text" id="cari-produk" class="smooth-transition" placeholder="Ketik nama atau kode item..." style="flex: 1;">
+                            <button id="btn-scan-kasir" class="btn-primary" style="padding: 10px 15px; font-size: 18px;" title="Nyalakan Kamera Scanner">📷</button>
+                        </div>
+                        <div id="search-dropdown" class="dropdown smooth-transition" style="display: none;"></div>
+                    </div>
+                    <div class="big-total-section">
+                        <span style="color: #ef4444; font-weight: bold;">Total</span>
+                        <h1 id="total-price-big">Rp. 0</h1>
+                    </div>
+                </div>
+
+                <div class="action-toolbar">
+                    <button id="btn-new">📄 NEW (F11)</button>
+                    <button id="btn-open">📂 OPEN DRAFT</button>
+                    <button id="btn-qty">🔢 QTY (F4)</button>
+                    <button id="btn-hapus-semua">🗑️ HAPUS SEMUA</button>
+                    <button id="btn-tambah-produk" style="background: #10b981; color: white; border-color: #10b981;">➕ TAMBAH PRODUK</button>
+                    <button id="btn-logout" style="background: #ef4444; color: white; border-color: #ef4444; margin-left: auto;">🚪 KELUAR</button>
+                </div>
+
+                <div class="table-container">
+                    <table class="cart-table">
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>Kode Item</th>
+                                <th>Nama Item</th>
+                                <th>Qty</th>
+                                <th>Harga</th>
+                                <th>Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cart-table-body">
+                            <tr><td colspan="6" style="text-align: center; padding: 20px; color: #9ca3af;">Belum ada item ditambahkan</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </main>
+
+            <aside class="sidebar-panel">
+                <div class="sidebar-buttons">
+                    <button id="btn-favorit">⭐ FAVORIT</button>
+                    <button id="btn-harga">💲 HARGA</button>
+                    <button id="btn-disc">🏷️ DISC ITEM</button>
+                    <button id="btn-member">👤 MEMBER</button>
+                    <button id="btn-cek-harga">🔍 CEK HARGA</button>
+                </div>
+                
+                <div class="payment-summary">
+                    <input type="hidden" id="nama-pembeli" value="CASH / UMUM">
+                    <div class="input-group">
+                        <label>Uang Bayar:</label>
+                        <input type="number" id="uang-bayar" class="smooth-transition">
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-top: 10px; font-weight: bold;">
+                        <span>KEMBALI:</span>
+                        <span id="uang-kembali" style="color: #10b981;">Rp. 0</span>
+                    </div>
+                </div>
+
+                <button id="btn-checkout" class="btn-bayar smooth-transition">BAYAR (F12)</button>
+            </aside>
+        </div>
+    </div> <div id="struk-modal" class="modal smooth-transition">
         <div class="modal-content">
             <div id="struk-preview"></div>
             <div class="modal-actions">
@@ -156,9 +167,7 @@
     </div>
 
     <div id="toast-container" class="toast-container"></div>
-    
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
-    
     <script src="script.js"></script>
 </body>
 </html>
