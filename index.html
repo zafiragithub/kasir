@@ -106,7 +106,10 @@
             <h3 style="margin-bottom: 15px; border-bottom: 2px solid #ef4444; padding-bottom: 10px;">Tambah Produk Baru</h3>
             <div class="input-group">
                 <label>ID / Barcode</label>
-                <input type="text" id="new-id" class="smooth-transition" placeholder="Misal: P099 atau Scan Barcode">
+                <div style="display: flex; gap: 8px;">
+                    <input type="text" id="new-id" class="smooth-transition" placeholder="Misal: P099 atau Scan Barcode" style="flex: 1;">
+                    <button id="btn-scan-tambah" class="btn-primary" style="padding: 10px 15px; font-size: 18px;" title="Scan Barcode Baru">📷</button>
+                </div>
             </div>
             <div class="input-group">
                 <label>Nama Produk</label>
