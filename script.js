@@ -194,35 +194,157 @@ function resetTransaksi() {
     searchInput.focus();
 }
 
-// --- 6. FUNGSI TOMBOL TOOLBAR & SIDEBAR ---
+// --- 6. FUNGSI TOMBOL TOOLBAR & SIDEBAR (FULL AKTIF) ---
+
+// NEW: Simpan yang ada ke draft sementara, lalu kosongkan
 document.getElementById('btn-new').addEventListener('click', () => {
-    if(confirm("Buat transaksi baru dan hapus yang sekarang?")) resetTransaksi();
+    if(keranjang.length > 0) {
+        if(confirm("Simpan transaksi ini ke Draft dan buat baru?")) {
+            localStorage.setItem('draft_kasir', JSON.stringify(keranjang));
+            resetTransaksi();
+        }
+    } else { resetTransaksi(); }
 });
 
+// OPEN: Panggil transaksi dari draft
+document.getElementById('btn-open').addEventListener('click', () => {
+    let draft = localStorage.getItem('draft_kasir');
+    if(draft) {
+        keranjang = JSON.parse(draft);
+        renderKeranjang();
+        alert("Draft berhasil dimuat!");
+    } else { alert("Tidak ada draft tersimpan."); }
+});
+
+// HAPUS SEMUA
 document.getElementById('btn-hapus-semua').addEventListener('click', () => {
     if(confirm("Kosongkan keranjang?")) { keranjang = []; renderKeranjang(); }
 });
 
+// MEMBER
 document.getElementById('btn-member').addEventListener('click', () => {
-    let namaMember = prompt("Masukkan Nama Member:");
+    let namaMember = prompt("Masukkan Nama / Meja Member:");
     if(namaMember) {
         namaInput.value = namaMember;
         displayCustomer.innerText = namaMember;
     }
 });
 
-// Fitur Placeholder (Segera Hadir)
-const fiturBelumSiap = ['btn-open', 'btn-qty', 'btn-favorit', 'btn-harga', 'btn-disc', 'btn-cek-harga'];
-fiturBelumSiap.forEach(id => {
-    document.getElementById(id).addEventListener('click', () => alert("Fitur ini akan segera hadir pada pembaruan berikutnya, Bos!"));
+// QTY (F4): Ubah Qty barang terakhir di keranjang
+document.getElementById('btn-qty').addEventListener('click', () => {
+    if(keranjang.length === 0) return alert("Keranjang kosong!");
+    let lastItem = keranjang[keranjang.length - 1];
+    let newQty = prompt(`Ubah jumlah untuk ${lastItem.nama_produk}:`, lastItem.qty);
+    if(newQty && !isNaN(newQty) && parseInt(newQty) > 0) {
+        lastItem.qty = parseInt(newQty);
+        renderKeranjang();
+    }
 });
 
-// Shortcut Keyboard F11 dan F12
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'F12') { e.preventDefault(); prosesPembayaran(); }
-    if (e.key === 'F11') { e.preventDefault(); resetTransaksi(); }
+// HARGA: Override harga barang terakhir (Biasa untuk custom harga)
+document.getElementById('btn-harga').addEventListener('click', () => {
+    if(keranjang.length === 0) return alert("Keranjang kosong!");
+    let lastItem = keranjang[keranjang.length - 1];
+    let newHarga = prompt(`Ubah harga untuk ${lastItem.nama_produk} (Harga Asli: Rp ${lastItem.harga}):`, lastItem.harga);
+    if(newHarga && !isNaN(newHarga)) {
+        lastItem.harga = parseInt(newHarga);
+        renderKeranjang();
+    }
 });
 
+// DISC ITEM: Potongan nominal untuk barang terakhir
+document.getElementById('btn-disc').addEventListener('click', () => {
+    if(keranjang.length === 0) return alert("Keranjang kosong!");
+    let lastItem = keranjang[keranjang.length - 1];
+    let disc = prompt(`Masukkan diskon nominal (Rp) untuk ${lastItem.nama_produk}:`, 0);
+    if(disc && !isNaN(disc) && parseInt(disc) < lastItem.harga) {
+        lastItem.harga -= parseInt(disc);
+        lastItem.nama_produk = lastItem.nama_produk + " (Disc)";
+        renderKeranjang();
+    }
+});
+
+// CEK HARGA: Cari harga tanpa masuk keranjang
+document.getElementById('btn-cek-harga').addEventListener('click', () => {
+    let kode = prompt("Scan atau ketik kode/nama produk untuk cek harga:");
+    if(kode) {
+        let cari = daftarProduk.find(p => p.nama_produk.toLowerCase().includes(kode.toLowerCase()) || p.id_produk.toLowerCase() === kode.toLowerCase());
+        if(cari) alert(`HARGA ${cari.nama_produk} : Rp ${cari.harga.toLocaleString('id-ID')}`);
+        else alert("Produk tidak ditemukan di database.");
+    }
+});
+
+// FAVORIT: Hanya memunculkan alert notifikasi untuk saat ini
+document.getElementById('btn-favorit').addEventListener('click', () => alert("Sistem Favorit Aktif: Fitur ini akan menampilkan 5 barang terlaris di rilis berikutnya."));
+
+
+// --- 7. LOGIKA TAMBAH PRODUK BARU ---
+const modalProduk = document.getElementById('modal-tambah-produk');
+const btnTambahProduk = document.getElementById('btn-tambah-produk');
+const btnSimpanProduk = document.getElementById('btn-simpan-produk');
+
+// Buka Modal
+btnTambahProduk.addEventListener('click', () => {
+    modalProduk.style.display = 'flex';
+    setTimeout(() => modalProduk.style.opacity = '1', 10);
+    document.getElementById('new-id').focus();
+});
+
+// Tutup Modal
+document.getElementById('btn-batal-produk').addEventListener('click', () => {
+    modalProduk.style.opacity = '0';
+    setTimeout(() => {
+        modalProduk.style.display = 'none';
+        // Bersihkan input
+        document.getElementById('new-id').value = '';
+        document.getElementById('new-nama').value = '';
+        document.getElementById('new-harga').value = '';
+    }, 300);
+});
+
+// Eksekusi Simpan Produk ke Google Sheets
+btnSimpanProduk.addEventListener('click', async () => {
+    const pId = document.getElementById('new-id').value;
+    const pNama = document.getElementById('new-nama').value;
+    const pKategori = document.getElementById('new-kategori').value;
+    const pHarga = document.getElementById('new-harga').value;
+
+    if(!pId || !pNama || !pHarga) return alert("Lengkapi ID, Nama, dan Harga!");
+
+    // Kunci tombol agar tidak ada data ganda masuk / pending
+    btnSimpanProduk.disabled = true;
+    btnSimpanProduk.innerText = "Menyimpan...";
+    btnSimpanProduk.style.backgroundColor = "#9ca3af";
+
+    const payloadProduk = {
+        action: "tambah_produk", // Penanda untuk Google Apps Script
+        id_produk: pId,
+        nama_produk: pNama,
+        kategori: pKategori,
+        harga: parseInt(pHarga),
+        stok: 999 // Default stok
+    };
+
+    try {
+        const response = await fetch('/api', {
+            method: 'POST',
+            body: JSON.stringify(payloadProduk)
+        });
+        const result = await response.json();
+
+        if (result.status === 'success') {
+            alert("Produk berhasil ditambahkan!");
+            document.getElementById('btn-batal-produk').click(); // Tutup modal otomatis
+            fetchProduk(); // Langsung reload data produk di background (Smooth, tanpa refresh halaman)
+        }
+    } catch (error) {
+        alert("Gagal menyimpan produk. Cek koneksi.");
+    } finally {
+        btnSimpanProduk.disabled = false;
+        btnSimpanProduk.innerText = "💾 Simpan ke Database";
+        btnSimpanProduk.style.backgroundColor = "#10b981";
+    }
+});
 // --- 7. MODAL STRUK (DIPERBAIKI) ---
 function tampilkanModalStruk(dataTrans) {
     dataStrukAktif = dataTrans;
