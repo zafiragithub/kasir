@@ -10,7 +10,11 @@
     <div class="container">
         
         <main class="product-section">
-            <h2>Daftar Menu</h2>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
+                <h2 style="margin: 0;">Daftar Menu</h2>
+                <input type="text" id="cari-produk" placeholder="Cari nama produk..." class="input-kasir smooth-transition" style="flex-grow: 1; max-width: 300px;">
+            </div>
+            
             <p id="loading-text" class="smooth-transition">Memuat data produk...</p>
             
             <div id="product-grid" class="grid"></div>
