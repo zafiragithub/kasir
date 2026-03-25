@@ -98,7 +98,33 @@
             </div>
         </div>
     </div>
-    
+    <div id="modal-tambah-produk" class="modal smooth-transition">
+        <div class="modal-content">
+            <h3 style="margin-bottom: 15px; border-bottom: 2px solid #ef4444; padding-bottom: 10px;">Tambah Produk Baru</h3>
+            <div class="input-group">
+                <label>ID / Barcode</label>
+                <input type="text" id="new-id" class="smooth-transition" placeholder="Misal: P099 atau Scan Barcode">
+            </div>
+            <div class="input-group">
+                <label>Nama Produk</label>
+                <input type="text" id="new-nama" class="smooth-transition" placeholder="Nama Barang">
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <div class="input-group" style="flex: 1;">
+                    <label>Kategori</label>
+                    <input type="text" id="new-kategori" class="smooth-transition" value="Umum">
+                </div>
+                <div class="input-group" style="flex: 1;">
+                    <label>Harga (Rp)</label>
+                    <input type="number" id="new-harga" class="smooth-transition" placeholder="0">
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button id="btn-simpan-produk" class="btn-primary" style="background: #10b981;">💾 Simpan ke Database</button>
+                <button id="btn-batal-produk" class="btn-danger">Batal</button>
+            </div>
+        </div>
+    </div>
     <script src="script.js"></script>
 </body>
 </html>
