@@ -219,3 +219,96 @@ body {
     #area-print-laporan { position: absolute; left: 0; top: 0; width: 100%; box-shadow: none; border: none; padding: 0; }
     #aksi-laporan { display: none !important; } 
 }
+/* ==========================================
+   12. TAMPILAN MOBILE (HP & TABLET)
+========================================== */
+@media screen and (max-width: 768px) {
+    /* 1. Header menyesuaikan layar HP */
+    .top-header { 
+        flex-direction: column; 
+        align-items: flex-start; 
+        gap: 15px; 
+        padding: 15px; 
+        height: auto; 
+    }
+    .header-info { 
+        width: 100%; 
+        justify-content: space-between; 
+        flex-wrap: wrap; 
+        gap: 10px; 
+        text-align: left; 
+    }
+    .header-info div { 
+        align-items: flex-start; 
+    }
+    
+    /* 2. Tata Letak Utama (Jadi Atas-Bawah, bukan Kiri-Kanan) */
+    .pos-container { 
+        flex-direction: column; 
+        height: auto; 
+        overflow: visible; 
+    }
+    .main-panel { 
+        padding: 10px; 
+    }
+    .sidebar-panel { 
+        width: 100%; 
+        border-left: none; 
+        border-top: 3px dashed #e2e8f0; 
+        padding: 15px; 
+        box-sizing: border-box; 
+    }
+    
+    /* 3. Input & Total Harga (Numpuk Rapi) */
+    .input-total-row { 
+        flex-direction: column; 
+        gap: 10px; 
+    }
+    .big-total-section { 
+        min-width: 100%; 
+        text-align: center; 
+        padding: 15px; 
+    }
+    
+    /* 4. Tombol Aksi (Dibuat Grid Rapi) */
+    .action-toolbar { 
+        justify-content: space-between; 
+        gap: 8px; 
+    }
+    .action-toolbar button { 
+        flex: 1 1 48%; /* Bagi 2 kolom */
+        justify-content: center; 
+        padding: 12px 5px; 
+        font-size: 12px; 
+    }
+    #btn-logout { 
+        margin-left: 0; 
+        flex: 1 1 100%; /* Tombol keluar full 1 baris */
+    }
+    
+    /* 5. Tabel Keranjang (Bisa di-swipe kanan-kiri) */
+    .table-container { 
+        overflow-x: auto; 
+        margin-bottom: 20px; 
+        border-radius: 6px;
+    }
+    .cart-table { 
+        min-width: 600px; /* Lebar minimum agar teks tidak tergencet */
+    }
+    
+    /* 6. Modal / Pop-up (Tidak terpotong layar) */
+    .modal-content { 
+        width: 95%; 
+        padding: 20px; 
+        margin: 10px; 
+        max-height: 90vh; 
+        overflow-y: auto; 
+        box-sizing: border-box; 
+    }
+    
+    /* 7. Login Screen (Lebih compact) */
+    .login-box { 
+        width: 90%; 
+        padding: 30px 20px; 
+    }
+}
