@@ -31,7 +31,7 @@ btnLogin.addEventListener('click', async () => {
     try {
         const payloadLogin = { action: "login", username: user, password: pass };
         
-        const response = await fetch('/api', { 
+        const response = await fetch('https://script.google.com/macros/s/AKfycbye1v3w0Kd5gcLAJ0bZ7JrLULS7KBqLgM6XVrJOn_AR844mLRi36hfvbEi77OQHmIKg/exec', { 
             method: 'POST', 
             body: JSON.stringify(payloadLogin) 
         });
@@ -196,7 +196,7 @@ customModalInput.addEventListener('keydown', (e) => {
 async function fetchProduk() {
     try {
         searchInput.placeholder = "Memuat data dari server...";
-        const response = await fetch('/api');
+        const response = await fetch('https://script.google.com/macros/s/AKfycbye1v3w0Kd5gcLAJ0bZ7JrLULS7KBqLgM6XVrJOn_AR844mLRi36hfvbEi77OQHmIKg/exec');
         const result = await response.json();
         if (result.status === 'success') {
             daftarProduk = result.data;
@@ -380,7 +380,7 @@ async function prosesPembayaran() {
     };
 
     try {
-        const response = await fetch('/api', { method: 'POST', body: JSON.stringify(dataTransaksi) });
+        const response = await fetch('https://script.google.com/macros/s/AKfycbye1v3w0Kd5gcLAJ0bZ7JrLULS7KBqLgM6XVrJOn_AR844mLRi36hfvbEi77OQHmIKg/exec', { method: 'POST', body: JSON.stringify(dataTransaksi) });
         const result = await response.json();
         
         if (result.status === 'success') {
@@ -555,7 +555,7 @@ btnSimpanProduk.addEventListener('click', async () => {
     };
 
     try {
-        const response = await fetch('/api', { method: 'POST', body: JSON.stringify(payloadProduk) });
+        const response = await fetch('https://script.google.com/macros/s/AKfycbye1v3w0Kd5gcLAJ0bZ7JrLULS7KBqLgM6XVrJOn_AR844mLRi36hfvbEi77OQHmIKg/exec', { method: 'POST', body: JSON.stringify(payloadProduk) });
         const result = await response.json();
 
         if (result.status === 'success') {
@@ -786,8 +786,8 @@ if (btnLaporan) {
         try {
             const payloadLaporan = { action: "laporan" };
             
-            // Fetch ke server (Tetap biarkan '/api' karena di Bos bisa jalan)
-            const response = await fetch('/api', { 
+            // Fetch ke server (Tetap biarkan 'https://script.google.com/macros/s/AKfycbye1v3w0Kd5gcLAJ0bZ7JrLULS7KBqLgM6XVrJOn_AR844mLRi36hfvbEi77OQHmIKg/exec' karena di Bos bisa jalan)
+            const response = await fetch('https://script.google.com/macros/s/AKfycbye1v3w0Kd5gcLAJ0bZ7JrLULS7KBqLgM6XVrJOn_AR844mLRi36hfvbEi77OQHmIKg/exec', { 
                 method: 'POST', 
                 body: JSON.stringify(payloadLaporan) 
             });
