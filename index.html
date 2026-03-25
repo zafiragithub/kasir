@@ -1,4 +1,29 @@
-<div class="cart-summary">
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Kasir Pintar</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        
+        <main class="product-section">
+            <h2>Daftar Menu</h2>
+            <p id="loading-text" class="smooth-transition">Memuat data produk...</p>
+            
+            <div id="product-grid" class="grid"></div>
+        </main>
+
+        <aside class="cart-section">
+            <h2>Keranjang</h2>
+            
+            <div id="cart-items" class="cart-list">
+                <p class="empty-cart-msg">Keranjang masih kosong</p>
+            </div>
+            
+            <div class="cart-summary">
                 <div class="input-group">
                     <label>Nama / No. Meja</label>
                     <input type="text" id="nama-pembeli" placeholder="Misal: Meja 4 / Budi" class="input-kasir smooth-transition">
@@ -19,3 +44,10 @@
 
                 <button id="btn-checkout" class="btn-primary">Lanjutkan Pembayaran</button>
             </div>
+        </aside>
+
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
