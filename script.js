@@ -10,6 +10,7 @@ const loadingText = document.getElementById('loading-text');
 const cartItemsContainer = document.getElementById('cart-items');
 const totalPriceEl = document.getElementById('total-price');
 const btnCheckout = document.getElementById('btn-checkout');
+const searchInput = document.getElementById('cari-produk');
 
 // Elemen Kasir & Modal
 const namaInput = document.getElementById('nama-pembeli');
@@ -34,24 +35,51 @@ async function fetchProduk() {
     }
 }
 
-function renderProduk() {
-    loadingText.style.opacity = '0';
-    setTimeout(() => {
-        loadingText.style.display = 'none';
-        daftarProduk.forEach((produk, index) => {
-            const card = document.createElement('div');
-            card.className = 'product-card smooth-transition';
-            card.style.animationDelay = `${index * 0.05}s`; 
-            card.innerHTML = `
-                <h3 style="margin-bottom: 8px;">${produk.nama_produk}</h3>
-                <p style="color: #6b7280; font-size: 14px;">Rp ${produk.harga.toLocaleString('id-ID')}</p>
-            `;
-            card.addEventListener('click', () => tambahKeKeranjang(produk));
-            productGrid.appendChild(card);
-        });
-    }, 300);
+// --- 1. FUNGSI RENDER PRODUK (DIPERBARUI UNTUK PENCARIAN) ---
+function renderProduk(dataYangDirender = daftarProduk) {
+    // Sembunyikan loading text jika masih muncul
+    if (loadingText.style.display !== 'none') {
+        loadingText.style.opacity = '0';
+        setTimeout(() => loadingText.style.display = 'none', 300);
+    }
+
+    // Kosongkan grid sebelum diisi ulang (penting saat mencari)
+    productGrid.innerHTML = '';
+
+    // Jika produk tidak ditemukan
+    if (dataYangDirender.length === 0) {
+        productGrid.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; color: #6b7280; padding: 20px;">Produk tidak ditemukan.</p>';
+        return;
+    }
+
+    dataYangDirender.forEach((produk, index) => {
+        const card = document.createElement('div');
+        card.className = 'product-card smooth-transition';
+        
+        // Trik agar animasi masuk tidak terlalu lama jika produk ada ribuan (di-loop setiap 20 item)
+        card.style.animationDelay = `${(index % 20) * 0.03}s`; 
+        
+        card.innerHTML = `
+            <h3 style="margin-bottom: 8px;">${produk.nama_produk}</h3>
+            <p style="color: #6b7280; font-size: 14px;">Rp ${produk.harga.toLocaleString('id-ID')}</p>
+        `;
+        card.addEventListener('click', () => tambahKeKeranjang(produk));
+        productGrid.appendChild(card);
+    });
 }
 
+// --- FITUR PENCARIAN REAL-TIME ---
+searchInput.addEventListener('input', (e) => {
+    const kataKunci = e.target.value.toLowerCase();
+    
+    // Filter produk yang namanya mengandung huruf yang diketik
+    const produkHasilFilter = daftarProduk.filter(produk => 
+        produk.nama_produk.toLowerCase().includes(kataKunci)
+    );
+    
+    // Render ulang dengan data hasil saringan
+    renderProduk(produkHasilFilter);
+});
 // --- 2. LOGIKA KERANJANG & EDIT PESANAN ---
 function tambahKeKeranjang(produk) {
     const itemAda = keranjang.find(item => item.id_produk === produk.id_produk);
