@@ -405,39 +405,42 @@ fetchProduk();
 // --- 8. FITUR SCANNER BARCODE KAMERA ---
 const scannerModal = document.getElementById('scanner-modal');
 const btnScanKasir = document.getElementById('btn-scan-kasir');
+const btnScanTambah = document.getElementById('btn-scan-tambah'); // Tombol scan di modal tambah
 const btnTutupScanner = document.getElementById('btn-tutup-scanner');
 let html5QrCode;
+let targetInputScan = null; // Mengingat input mana yang meminta scan
 
-// Fungsi untuk menyalakan kamera
-function bukaScannerKamera() {
+// Fungsi untuk menyalakan kamera dengan target spesifik
+function bukaScannerKamera(elemenTarget) {
+    targetInputScan = elemenTarget; // Simpan elemen input yang akan diisi
+    
     scannerModal.style.display = 'flex';
     setTimeout(() => scannerModal.style.opacity = '1', 10);
 
-    // Inisialisasi pembaca di dalam div dengan id "reader"
     html5QrCode = new Html5Qrcode("reader");
-    
-    // Konfigurasi kamera (gunakan kamera belakang jika ada)
     const config = { fps: 10, qrbox: { width: 250, height: 150 } };
     
     html5QrCode.start({ facingMode: "environment" }, config, 
         (decodedText, decodedResult) => {
-            // JIKA BERHASIL MEMBACA BARCODE:
-            suaraBeep(); // Bunyikan suara khas minimarket
+            // Bunyikan suara
+            suaraBeep();
             
-            // Masukkan teks hasil scan ke kolom pencarian
-            searchInput.value = decodedText;
+            // Masukkan teks ke kotak input yang memanggil kamera
+            targetInputScan.value = decodedText;
             
-            // Pancing event 'input' agar sistem langsung mencari produknya (Dropdown muncul)
-            searchInput.dispatchEvent(new Event('input'));
+            // Jika yang manggil adalah kasir, pancing pencarian otomatis
+            if (targetInputScan.id === 'cari-produk') {
+                targetInputScan.dispatchEvent(new Event('input'));
+            }
             
-            // Matikan kamera dan tutup pop-up
+            // Matikan kamera
             tutupScannerKamera();
         },
         (errorMessage) => {
-            // Abaikan error saat sedang mencari fokus barcode
+            // Biarkan kosong, abaikan error saat kamera mencari fokus
         }
     ).catch((err) => {
-        alert("Gagal mengakses kamera. Pastikan browser Bos memiliki izin (permission) untuk menggunakan kamera.");
+        alert("Gagal mengakses kamera. Pastikan browser diizinkan menggunakan kamera.");
         tutupScannerKamera();
     });
 }
@@ -447,9 +450,7 @@ function tutupScannerKamera() {
         html5QrCode.stop().then(() => {
             html5QrCode.clear();
             hilangkanModalScanner();
-        }).catch(err => {
-            hilangkanModalScanner();
-        });
+        }).catch(err => hilangkanModalScanner());
     } else {
         hilangkanModalScanner();
     }
@@ -460,7 +461,6 @@ function hilangkanModalScanner() {
     setTimeout(() => scannerModal.style.display = 'none', 300);
 }
 
-// Efek suara "Beep" buatan menggunakan AudioContext bawaan browser
 function suaraBeep() {
     try {
         const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -469,13 +469,19 @@ function suaraBeep() {
         osc.connect(gainNode);
         gainNode.connect(ctx.destination);
         osc.type = "sine";
-        osc.frequency.value = 1000; // Frekuensi suara (Makin tinggi makin nyaring)
-        gainNode.gain.setValueAtTime(0.1, ctx.currentTime); // Volume
+        osc.frequency.value = 1000; 
+        gainNode.gain.setValueAtTime(0.1, ctx.currentTime); 
         osc.start();
-        setTimeout(() => osc.stop(), 150); // Durasi beep 150 milidetik
+        setTimeout(() => osc.stop(), 150); 
     } catch(e) { console.log("Audio tidak didukung"); }
 }
 
-// Pasang aksi ke tombol
-btnScanKasir.addEventListener('click', bukaScannerKamera);
+// Pasang aksi ke masing-masing tombol dengan target yang berbeda
+btnScanKasir.addEventListener('click', () => bukaScannerKamera(searchInput));
+
+// Pastikan tombol scan tambah produk ada sebelum dipasang event
+if (btnScanTambah) {
+    btnScanTambah.addEventListener('click', () => bukaScannerKamera(document.getElementById('new-id')));
+}
+
 btnTutupScanner.addEventListener('click', tutupScannerKamera);
