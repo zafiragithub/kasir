@@ -30,28 +30,74 @@ tanggalHariIni.innerText = new Date().toLocaleDateString('id-ID', { day: 'numeri
 
 
 // ==========================================
-// --- FUNGSI TOAST NOTIFICATION (BARU) ---
+// --- FUNGSI TOAST NOTIFICATION ---
 // ==========================================
 function showToast(message, type = 'info') {
     const container = document.getElementById('toast-container');
     if (!container) return;
 
     const toast = document.createElement('div');
-    // Tambah icon berdasarkan tipe
     let icon = 'ℹ️';
     if (type === 'success') icon = '✅';
     if (type === 'error') icon = '⚠️';
 
     toast.className = `toast-msg toast-${type}`;
     toast.innerHTML = `<span style="margin-right: 10px; font-size: 18px;">${icon}</span> <span>${message}</span>`;
-    
     container.appendChild(toast);
 
-    // Hapus elemen dari HTML setelah animasi selesai (3 detik)
-    setTimeout(() => {
-        if(toast.parentElement) toast.remove();
-    }, 3000);
+    setTimeout(() => { if(toast.parentElement) toast.remove(); }, 3000);
 }
+
+// ==========================================
+// --- FUNGSI CUSTOM MODAL (GANTI PROMPT/CONFIRM) ---
+// ==========================================
+const customModal = document.getElementById('custom-modal');
+const customModalTitle = document.getElementById('custom-modal-title');
+const customModalInput = document.getElementById('custom-modal-input');
+const btnCustomOk = document.getElementById('btn-custom-ok');
+const btnCustomCancel = document.getElementById('btn-custom-cancel');
+let customModalCallback = null;
+
+function showConfirm(message, callback) {
+    customModalTitle.innerText = message;
+    customModalInput.style.display = 'none';
+    customModalCallback = callback;
+    bukaCustomModal();
+}
+
+function showPrompt(message, defaultValue, callback) {
+    customModalTitle.innerText = message;
+    customModalInput.style.display = 'block';
+    customModalInput.value = defaultValue || '';
+    customModalCallback = callback;
+    bukaCustomModal();
+    setTimeout(() => { customModalInput.focus(); customModalInput.select(); }, 100);
+}
+
+function bukaCustomModal() {
+    customModal.style.display = 'flex';
+    setTimeout(() => customModal.style.opacity = '1', 10);
+}
+
+function tutupCustomModal() {
+    customModal.style.opacity = '0';
+    setTimeout(() => customModal.style.display = 'none', 300);
+}
+
+btnCustomCancel.addEventListener('click', () => {
+    tutupCustomModal();
+    if (customModalCallback) customModalCallback(null);
+});
+
+btnCustomOk.addEventListener('click', () => {
+    tutupCustomModal();
+    let result = customModalInput.style.display === 'block' ? customModalInput.value : true;
+    if (customModalCallback) customModalCallback(result);
+});
+
+customModalInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); btnCustomOk.click(); }
+});
 
 
 // ==========================================
@@ -278,11 +324,13 @@ function resetTransaksi() {
 // ==========================================
 document.getElementById('btn-new').addEventListener('click', () => {
     if(keranjang.length > 0) {
-        if(confirm("Simpan transaksi ini ke Draft dan buat baru?")) {
-            localStorage.setItem('draft_kasir', JSON.stringify(keranjang));
-            showToast("Transaksi disimpan ke Draft", "info");
-            resetTransaksi();
-        }
+        showConfirm("Simpan transaksi ini ke Draft dan buat baru?", (isYes) => {
+            if(isYes) {
+                localStorage.setItem('draft_kasir', JSON.stringify(keranjang));
+                showToast("Transaksi disimpan ke Draft", "info");
+                resetTransaksi();
+            }
+        });
     } else { resetTransaksi(); }
 });
 
@@ -298,67 +346,79 @@ document.getElementById('btn-open').addEventListener('click', () => {
 });
 
 document.getElementById('btn-hapus-semua').addEventListener('click', () => {
-    if(confirm("Kosongkan keranjang?")) { 
-        keranjang = []; 
-        renderKeranjang(); 
-        showToast("Keranjang dibersihkan", "info");
-    }
+    if(keranjang.length === 0) return showToast("Keranjang sudah kosong", "info");
+    showConfirm("Yakin ingin mengosongkan semua keranjang?", (isYes) => {
+        if(isYes) { 
+            keranjang = []; 
+            renderKeranjang(); 
+            showToast("Keranjang dibersihkan", "success");
+        }
+    });
 });
 
 document.getElementById('btn-member').addEventListener('click', () => {
-    let namaMember = prompt("Masukkan Nama / Meja Member:");
-    if(namaMember) {
-        namaInput.value = namaMember;
-        displayCustomer.innerText = namaMember;
-        showToast(`Customer diatur ke: ${namaMember}`, "success");
-    }
+    showPrompt("Masukkan Nama / Meja Member:", "", (namaMember) => {
+        if(namaMember && namaMember.trim() !== '') {
+            namaInput.value = namaMember;
+            displayCustomer.innerText = namaMember;
+            showToast(`Customer diatur ke: ${namaMember}`, "success");
+        }
+    });
 });
 
 document.getElementById('btn-qty').addEventListener('click', () => {
     if(keranjang.length === 0) return showToast("Keranjang kosong!", "error");
     let lastItem = keranjang[keranjang.length - 1];
-    let newQty = prompt(`Ubah jumlah untuk ${lastItem.nama_produk}:`, lastItem.qty);
-    if(newQty && !isNaN(newQty) && parseInt(newQty) > 0) {
-        lastItem.qty = parseInt(newQty);
-        renderKeranjang();
-    }
+    
+    showPrompt(`Ubah jumlah pesanan untuk ${lastItem.nama_produk}:`, lastItem.qty, (newQty) => {
+        if(newQty && !isNaN(newQty) && parseInt(newQty) > 0) {
+            lastItem.qty = parseInt(newQty);
+            renderKeranjang();
+            showToast("Jumlah diubah", "success");
+        }
+    });
 });
 
 document.getElementById('btn-harga').addEventListener('click', () => {
     if(keranjang.length === 0) return showToast("Keranjang kosong!", "error");
     let lastItem = keranjang[keranjang.length - 1];
-    let newHarga = prompt(`Ubah override harga untuk ${lastItem.nama_produk} (Harga Database: Rp ${lastItem.harga}):`, lastItem.harga);
-    let hrgVal = parseInt(newHarga);
-    if(!isNaN(hrgVal) && hrgVal >= 0) {
-        lastItem.harga = hrgVal; 
-        lastItem.diskon = 0; 
-        renderKeranjang();
-        showToast("Harga berhasil diubah", "success");
-    }
+    
+    showPrompt(`Ubah harga khusus untuk ${lastItem.nama_produk} (Harga Asli: Rp ${lastItem.harga}):`, lastItem.harga, (newHarga) => {
+        let hrgVal = parseInt(newHarga);
+        if(!isNaN(hrgVal) && hrgVal >= 0) {
+            lastItem.harga = hrgVal; 
+            lastItem.diskon = 0; 
+            renderKeranjang();
+            showToast("Harga berhasil diubah", "success");
+        }
+    });
 });
 
 document.getElementById('btn-disc').addEventListener('click', () => {
     if(keranjang.length === 0) return showToast("Keranjang kosong!", "error");
     let lastItem = keranjang[keranjang.length - 1];
-    let disc = prompt(`Masukkan Nominal Diskon (Rp) PER ITEM untuk ${lastItem.nama_produk}:`, lastItem.diskon || 0);
-    let discVal = parseInt(disc);
-    if(!isNaN(discVal) && discVal >= 0 && discVal <= lastItem.harga) {
-        lastItem.diskon = discVal; 
-        renderKeranjang();
-        showToast("Diskon diterapkan", "success");
-    }
+    
+    showPrompt(`Masukkan Diskon (Rp) PER ITEM untuk ${lastItem.nama_produk}:`, lastItem.diskon || 0, (disc) => {
+        let discVal = parseInt(disc);
+        if(!isNaN(discVal) && discVal >= 0 && discVal <= lastItem.harga) {
+            lastItem.diskon = discVal; 
+            renderKeranjang();
+            showToast("Diskon diterapkan", "success");
+        }
+    });
 });
 
 document.getElementById('btn-cek-harga').addEventListener('click', () => {
-    let kode = prompt("Scan atau ketik kode/nama produk untuk cek harga:");
-    if(kode) {
-        let cari = daftarProduk.find(p => String(p.nama_produk).toLowerCase().includes(kode.toLowerCase()) || String(p.id_produk).toLowerCase() === kode.toLowerCase());
-        if(cari) {
-            showToast(`INFO HARGA: ${cari.nama_produk} - Rp ${cari.harga.toLocaleString('id-ID')}`, "info");
-        } else {
-            showToast("Produk tidak ditemukan di database.", "error");
+    showPrompt("Ketik atau scan kode produk untuk Cek Harga:", "", (kode) => {
+        if(kode && kode.trim() !== '') {
+            let cari = daftarProduk.find(p => String(p.nama_produk).toLowerCase().includes(kode.toLowerCase()) || String(p.id_produk).toLowerCase() === kode.toLowerCase());
+            if(cari) {
+                showToast(`INFO HARGA: ${cari.nama_produk} - Rp ${cari.harga.toLocaleString('id-ID')}`, "info");
+            } else {
+                showToast("Produk tidak ditemukan di database.", "error");
+            }
         }
-    }
+    });
 });
 
 document.getElementById('btn-favorit').addEventListener('click', () => showToast("Fitur Favorit akan segera hadir!", "info"));
@@ -561,7 +621,7 @@ function bukaScannerKamera(elemenTarget) {
     .catch((err) => {
         html5QrCode.start({ facingMode: "user" }, config, onScanSuccess, onScanError)
         .catch((err2) => {
-            showToast("Akses kamera ditolak atau kamera tidak ditemukan.", "error");
+            showToast("Akses kamera ditolak atau tidak ditemukan.", "error");
             tutupScannerKamera();
         });
     });
