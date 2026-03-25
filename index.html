@@ -166,7 +166,30 @@
             </div>
         </div>
     </div>
-
+    <div id="modal-laporan" class="modal smooth-transition" style="z-index: 2600;">
+        <div class="modal-content" style="max-width: 600px; width: 90%;">
+            <h3 style="margin-bottom: 15px; border-bottom: 2px solid #3b82f6; padding-bottom: 10px; text-align: center;">📊 Ringkasan Penjualan</h3>
+            
+            <div class="report-grid">
+                <div class="report-card">
+                    <h4>HARI INI</h4>
+                    <h2 id="lap-harian">Rp 0</h2>
+                </div>
+                <div class="report-card">
+                    <h4>7 HARI TERAKHIR</h4>
+                    <h2 id="lap-mingguan">Rp 0</h2>
+                </div>
+                <div class="report-card">
+                    <h4>BULAN INI</h4>
+                    <h2 id="lap-bulanan">Rp 0</h2>
+                </div>
+            </div>
+            
+            <div style="text-align: center;">
+                <button id="btn-tutup-laporan" class="btn-danger" style="width: 100%; max-width: 200px;">Tutup Laporan</button>
+            </div>
+        </div>
+    </div>
     <div id="toast-container" class="toast-container"></div>
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <script src="script.js"></script>
