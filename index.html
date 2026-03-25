@@ -138,7 +138,16 @@
             <button id="btn-tutup-scanner" class="btn-danger" style="margin-top: 15px; width: 100%;">Batalkan Scan</button>
         </div>
     </div>
-    
+    <div id="custom-modal" class="modal smooth-transition" style="z-index: 3000;">
+        <div class="modal-content" style="text-align: center; width: 320px;">
+            <h3 id="custom-modal-title" style="margin-bottom: 15px; font-size: 16px;">Konfirmasi</h3>
+            <input type="text" id="custom-modal-input" class="smooth-transition" style="width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #d1d5db; border-radius: 4px; display: none; text-align: center; font-size: 16px;">
+            <div style="display: flex; gap: 10px; justify-content: center;">
+                <button id="btn-custom-ok" class="btn-primary" style="flex: 1; background-color: #10b981;">OK</button>
+                <button id="btn-custom-cancel" class="btn-danger" style="flex: 1;">Batal</button>
+            </div>
+        </div>
+    </div>
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <div id="toast-container" class="toast-container"></div>
     
