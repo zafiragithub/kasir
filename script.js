@@ -6,7 +6,6 @@ let daftarProduk = [];
 let keranjang = [];
 let totalBelanja = 0;
 
-// DOM Header & Tampilan
 const tanggalHariIni = document.getElementById('tanggal-hari-ini');
 const displayCustomer = document.getElementById('display-customer');
 const searchInput = document.getElementById('cari-produk');
@@ -14,24 +13,45 @@ const searchDropdown = document.getElementById('search-dropdown');
 const cartTableBody = document.getElementById('cart-table-body');
 const totalPriceBig = document.getElementById('total-price-big');
 
-// DOM Pembayaran
 const namaInput = document.getElementById('nama-pembeli');
 const bayarInput = document.getElementById('uang-bayar');
 const kembaliEl = document.getElementById('uang-kembali');
 const btnCheckout = document.getElementById('btn-checkout');
 
-// DOM Tambah Produk
 const modalProduk = document.getElementById('modal-tambah-produk');
 const btnTambahProduk = document.getElementById('btn-tambah-produk');
 const btnSimpanProduk = document.getElementById('btn-simpan-produk');
 
-// DOM Struk
 const modal = document.getElementById('struk-modal');
 const strukPreview = document.getElementById('struk-preview');
 let dataStrukAktif = null;
 
-// Set Tanggal Hari Ini
 tanggalHariIni.innerText = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+
+
+// ==========================================
+// --- FUNGSI TOAST NOTIFICATION (BARU) ---
+// ==========================================
+function showToast(message, type = 'info') {
+    const container = document.getElementById('toast-container');
+    if (!container) return;
+
+    const toast = document.createElement('div');
+    // Tambah icon berdasarkan tipe
+    let icon = 'ℹ️';
+    if (type === 'success') icon = '✅';
+    if (type === 'error') icon = '⚠️';
+
+    toast.className = `toast-msg toast-${type}`;
+    toast.innerHTML = `<span style="margin-right: 10px; font-size: 18px;">${icon}</span> <span>${message}</span>`;
+    
+    container.appendChild(toast);
+
+    // Hapus elemen dari HTML setelah animasi selesai (3 detik)
+    setTimeout(() => {
+        if(toast.parentElement) toast.remove();
+    }, 3000);
+}
 
 
 // ==========================================
@@ -48,7 +68,8 @@ async function fetchProduk() {
             searchInput.focus();
         }
     } catch (error) {
-        searchInput.placeholder = "Koneksi data gagal. Refresh halaman.";
+        showToast("Koneksi data gagal. Refresh halaman.", "error");
+        searchInput.placeholder = "Koneksi data gagal.";
     }
 }
 
@@ -105,7 +126,7 @@ searchInput.addEventListener('keydown', (e) => {
             searchInput.value = ''; 
             searchDropdown.style.display = 'none';
         } else {
-            alert("Produk tidak ditemukan di database!");
+            showToast("Produk tidak ditemukan di database!", "error");
         }
     }
 });
@@ -119,7 +140,6 @@ function tambahKeKeranjang(produk) {
     if (itemAda) { 
         itemAda.qty += 1; 
     } else { 
-        // PERBAIKAN: Ingat harga asli dan set diskon 0 saat pertama masuk
         keranjang.push({ ...produk, qty: 1, diskon: 0 }); 
     }
     renderKeranjang();
@@ -144,13 +164,11 @@ function renderKeranjang() {
         cartTableBody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 20px; color: #9ca3af;">Belum ada item ditambahkan</td></tr>';
     } else {
         keranjang.forEach((item, index) => {
-            // PERBAIKAN: Hitung harga setelah diskon
             let diskonPerItem = item.diskon || 0;
             let hargaSetelahDiskon = item.harga - diskonPerItem;
             const subtotal = hargaSetelahDiskon * item.qty;
             totalBelanja += subtotal;
             
-            // Efek UI: Harga Coret & Label Diskon
             let labelDiskon = diskonPerItem > 0 ? `<br><small style="color:#ef4444; font-weight:normal;">Disc: -Rp ${diskonPerItem.toLocaleString('id-ID')}</small>` : '';
             let hargaCoret = diskonPerItem > 0 ? `<del style="color:#9ca3af; font-size:12px;">${item.harga.toLocaleString('id-ID')}</del><br>` : '';
 
@@ -208,8 +226,8 @@ async function prosesPembayaran() {
     const bayar = parseInt(bayarInput.value) || 0;
     const kembalian = bayar - totalBelanja;
 
-    if (keranjang.length === 0) return alert("Keranjang kosong!");
-    if (totalBelanja > 0 && bayar < totalBelanja) return alert("Uang bayar kurang!");
+    if (keranjang.length === 0) return showToast("Keranjang masih kosong!", "error");
+    if (totalBelanja > 0 && bayar < totalBelanja) return showToast("Uang bayar kurang!", "error");
 
     btnCheckout.disabled = true;
     btnCheckout.innerText = "MEMPROSES...";
@@ -231,10 +249,11 @@ async function prosesPembayaran() {
         
         if (result.status === 'success') {
             tampilkanModalStruk(dataTransaksi); 
+            showToast("Transaksi berhasil disimpan!", "success");
             resetTransaksi(); 
         }
     } catch (error) {
-        alert("Gagal memproses transaksi. Cek koneksi.");
+        showToast("Gagal memproses transaksi. Cek koneksi internet.", "error");
     } finally {
         btnCheckout.disabled = false;
         btnCheckout.innerText = "BAYAR (F12)";
@@ -261,6 +280,7 @@ document.getElementById('btn-new').addEventListener('click', () => {
     if(keranjang.length > 0) {
         if(confirm("Simpan transaksi ini ke Draft dan buat baru?")) {
             localStorage.setItem('draft_kasir', JSON.stringify(keranjang));
+            showToast("Transaksi disimpan ke Draft", "info");
             resetTransaksi();
         }
     } else { resetTransaksi(); }
@@ -271,12 +291,18 @@ document.getElementById('btn-open').addEventListener('click', () => {
     if(draft) {
         keranjang = JSON.parse(draft);
         renderKeranjang();
-        alert("Draft berhasil dimuat!");
-    } else { alert("Tidak ada draft tersimpan."); }
+        showToast("Draft berhasil dimuat!", "success");
+    } else { 
+        showToast("Tidak ada draft tersimpan.", "info"); 
+    }
 });
 
 document.getElementById('btn-hapus-semua').addEventListener('click', () => {
-    if(confirm("Kosongkan keranjang?")) { keranjang = []; renderKeranjang(); }
+    if(confirm("Kosongkan keranjang?")) { 
+        keranjang = []; 
+        renderKeranjang(); 
+        showToast("Keranjang dibersihkan", "info");
+    }
 });
 
 document.getElementById('btn-member').addEventListener('click', () => {
@@ -284,11 +310,12 @@ document.getElementById('btn-member').addEventListener('click', () => {
     if(namaMember) {
         namaInput.value = namaMember;
         displayCustomer.innerText = namaMember;
+        showToast(`Customer diatur ke: ${namaMember}`, "success");
     }
 });
 
 document.getElementById('btn-qty').addEventListener('click', () => {
-    if(keranjang.length === 0) return alert("Keranjang kosong!");
+    if(keranjang.length === 0) return showToast("Keranjang kosong!", "error");
     let lastItem = keranjang[keranjang.length - 1];
     let newQty = prompt(`Ubah jumlah untuk ${lastItem.nama_produk}:`, lastItem.qty);
     if(newQty && !isNaN(newQty) && parseInt(newQty) > 0) {
@@ -298,26 +325,27 @@ document.getElementById('btn-qty').addEventListener('click', () => {
 });
 
 document.getElementById('btn-harga').addEventListener('click', () => {
-    if(keranjang.length === 0) return alert("Keranjang kosong!");
+    if(keranjang.length === 0) return showToast("Keranjang kosong!", "error");
     let lastItem = keranjang[keranjang.length - 1];
     let newHarga = prompt(`Ubah override harga untuk ${lastItem.nama_produk} (Harga Database: Rp ${lastItem.harga}):`, lastItem.harga);
     let hrgVal = parseInt(newHarga);
     if(!isNaN(hrgVal) && hrgVal >= 0) {
-        lastItem.harga = hrgVal; // Timpa harga asli (Override)
-        lastItem.diskon = 0; // Reset diskon jika harga di-override manual
+        lastItem.harga = hrgVal; 
+        lastItem.diskon = 0; 
         renderKeranjang();
+        showToast("Harga berhasil diubah", "success");
     }
 });
 
-// PERBAIKAN: Logika Diskon dipisah dari Harga Utama
 document.getElementById('btn-disc').addEventListener('click', () => {
-    if(keranjang.length === 0) return alert("Keranjang kosong!");
+    if(keranjang.length === 0) return showToast("Keranjang kosong!", "error");
     let lastItem = keranjang[keranjang.length - 1];
     let disc = prompt(`Masukkan Nominal Diskon (Rp) PER ITEM untuk ${lastItem.nama_produk}:`, lastItem.diskon || 0);
     let discVal = parseInt(disc);
     if(!isNaN(discVal) && discVal >= 0 && discVal <= lastItem.harga) {
-        lastItem.diskon = discVal; // Simpan nilai diskonnya saja
+        lastItem.diskon = discVal; 
         renderKeranjang();
+        showToast("Diskon diterapkan", "success");
     }
 });
 
@@ -325,12 +353,15 @@ document.getElementById('btn-cek-harga').addEventListener('click', () => {
     let kode = prompt("Scan atau ketik kode/nama produk untuk cek harga:");
     if(kode) {
         let cari = daftarProduk.find(p => String(p.nama_produk).toLowerCase().includes(kode.toLowerCase()) || String(p.id_produk).toLowerCase() === kode.toLowerCase());
-        if(cari) alert(`HARGA ${cari.nama_produk} : Rp ${cari.harga.toLocaleString('id-ID')}`);
-        else alert("Produk tidak ditemukan di database.");
+        if(cari) {
+            showToast(`INFO HARGA: ${cari.nama_produk} - Rp ${cari.harga.toLocaleString('id-ID')}`, "info");
+        } else {
+            showToast("Produk tidak ditemukan di database.", "error");
+        }
     }
 });
 
-document.getElementById('btn-favorit').addEventListener('click', () => alert("Fitur Favorit akan segera hadir!"));
+document.getElementById('btn-favorit').addEventListener('click', () => showToast("Fitur Favorit akan segera hadir!", "info"));
 
 
 // ==========================================
@@ -358,7 +389,7 @@ btnSimpanProduk.addEventListener('click', async () => {
     const pKategori = document.getElementById('new-kategori').value;
     const pHarga = document.getElementById('new-harga').value;
 
-    if(!pId || !pNama || !pHarga) return alert("Lengkapi ID, Nama, dan Harga!");
+    if(!pId || !pNama || !pHarga) return showToast("Lengkapi ID, Nama, dan Harga!", "error");
 
     btnSimpanProduk.disabled = true;
     btnSimpanProduk.innerText = "Menyimpan...";
@@ -378,12 +409,12 @@ btnSimpanProduk.addEventListener('click', async () => {
         const result = await response.json();
 
         if (result.status === 'success') {
-            alert("Produk berhasil ditambahkan!");
+            showToast("Produk baru berhasil disimpan ke Server!", "success");
             document.getElementById('btn-batal-produk').click(); 
             fetchProduk(); 
         }
     } catch (error) {
-        alert("Gagal menyimpan produk. Cek koneksi.");
+        showToast("Gagal menyimpan produk. Cek koneksi internet.", "error");
     } finally {
         btnSimpanProduk.disabled = false;
         btnSimpanProduk.innerText = "💾 Simpan ke Database";
@@ -407,14 +438,12 @@ function tampilkanModalStruk(dataTrans) {
     `;
     
     JSON.parse(dataTrans.daftar_pesanan).forEach(item => {
-        // PERBAIKAN: Hitung subtotal dan siapkan baris diskon jika ada
         let diskonPerItem = item.diskon || 0;
         let hargaSetelahDiskon = item.harga - diskonPerItem;
         let subtotal = hargaSetelahDiskon * item.qty;
 
         htmlStruk += `<tr><td colspan="2"><b>${item.nama_produk}</b></td></tr>`;
         
-        // Tampilkan info diskon di HTML Struk
         if (diskonPerItem > 0) {
             htmlStruk += `<tr><td colspan="2" style="color:#ef4444; font-size: 12px; padding-left: 10px; font-style: italic;">Disc: -Rp ${diskonPerItem.toLocaleString('id-ID')} /item</td></tr>`;
         }
@@ -453,7 +482,6 @@ document.getElementById('btn-print-thermal').addEventListener('click', async () 
         let strukText = `==== ${NAMA_TOKO} ====\nID: ${dataStrukAktif.id_transaksi}\nCustomer: ${dataStrukAktif.nama_meja}\n------------------\n`;
         
         JSON.parse(dataStrukAktif.daftar_pesanan).forEach(item => {
-            // PERBAIKAN: Format teks printer thermal untuk menampilkan diskon
             let diskonPerItem = item.diskon || 0;
             let hargaSetelahDiskon = item.harga - diskonPerItem;
             let subtotal = hargaSetelahDiskon * item.qty;
@@ -472,7 +500,11 @@ document.getElementById('btn-print-thermal').addEventListener('click', async () 
         await writer.write(new Uint8Array([0x1D, 0x56, 0x00]));
         writer.releaseLock();
         await port.close();
-    } catch (error) { console.log("Cetak dibatalkan", error); }
+        showToast("Struk berhasil dicetak ke Printer Thermal!", "success");
+    } catch (error) { 
+        console.log("Cetak dibatalkan", error); 
+        showToast("Pencetakan dibatalkan atau printer tidak siap.", "error");
+    }
 });
 
 
@@ -511,11 +543,13 @@ function bukaScannerKamera(elemenTarget) {
                 tambahKeKeranjang(cari); 
                 targetInputScan.value = ''; 
                 if(searchDropdown) searchDropdown.style.display = 'none'; 
+                showToast("Berhasil Scan: " + cari.nama_produk, "success");
             } else {
-                alert("Barang dengan Barcode " + decodedText + " tidak ditemukan di database!");
+                showToast("Barcode " + decodedText + " tidak dikenali!", "error");
             }
         } else {
             targetInputScan.value = decodedText;
+            showToast("Barcode berhasil dipindai!", "success");
         }
         
         tutupScannerKamera();
@@ -527,7 +561,7 @@ function bukaScannerKamera(elemenTarget) {
     .catch((err) => {
         html5QrCode.start({ facingMode: "user" }, config, onScanSuccess, onScanError)
         .catch((err2) => {
-            alert("Akses kamera ditolak atau kamera tidak ditemukan. Pesan: " + err2);
+            showToast("Akses kamera ditolak atau kamera tidak ditemukan.", "error");
             tutupScannerKamera();
         });
     });
