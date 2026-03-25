@@ -770,22 +770,23 @@ document.addEventListener('keydown', (e) => {
     if (e.key === 'F11') { e.preventDefault(); document.getElementById('btn-new').click(); }
 });
 // ==========================================
-// --- 10. FITUR LAPORAN PENJUALAN ---
+// --- 10. FITUR LAPORAN PENJUALAN & PDF ---
 // ==========================================
 const modalLaporan = document.getElementById('modal-laporan');
 const btnLaporan = document.getElementById('btn-laporan');
 const btnTutupLaporan = document.getElementById('btn-tutup-laporan');
+const btnCetakLaporan = document.getElementById('btn-cetak-laporan');
+const tabelRincian = document.getElementById('tabel-rincian-laporan');
 
 if (btnLaporan) {
     btnLaporan.addEventListener('click', async () => {
-        // Tampilkan pesan loading di tombol
         btnLaporan.innerText = "Memuat...";
         btnLaporan.disabled = true;
 
         try {
             const payloadLaporan = { action: "laporan" };
             
-            // ⚠️ GANTI '/api' DI BAWAH INI DENGAN LINK GOOGLE SCRIPT BOS ⚠️
+            // Fetch ke server (Tetap biarkan '/api' karena di Bos bisa jalan)
             const response = await fetch('/api', { 
                 method: 'POST', 
                 body: JSON.stringify(payloadLaporan) 
@@ -801,34 +802,50 @@ if (btnLaporan) {
                 let totalMingguan = 0;
                 let totalBulanan = 0;
 
+                // Kosongkan isi tabel rincian sebelumnya
+                tabelRincian.innerHTML = '';
+
+                // Hitung total ringkasan
                 dataTrx.forEach(trx => {
                     const tglTrx = new Date(trx.tanggal);
                     const nominal = parseInt(trx.total) || 0;
 
-                    // 1. Hitung Harian
-                    if (tglTrx.toDateString() === sekarang.toDateString()) {
-                        totalHarian += nominal;
-                    }
-
-                    // 2. Hitung Mingguan (7 hari terakhir)
-                    const bedaWaktu = sekarang.getTime() - tglTrx.getTime();
-                    const bedaHari = bedaWaktu / (1000 * 3600 * 24);
-                    if (bedaHari >= 0 && bedaHari <= 7) {
-                        totalMingguan += nominal;
-                    }
-
-                    // 3. Hitung Bulanan
-                    if (tglTrx.getMonth() === sekarang.getMonth() && tglTrx.getFullYear() === sekarang.getFullYear()) {
-                        totalBulanan += nominal;
-                    }
+                    if (tglTrx.toDateString() === sekarang.toDateString()) totalHarian += nominal;
+                    
+                    const bedaHari = (sekarang.getTime() - tglTrx.getTime()) / (1000 * 3600 * 24);
+                    if (bedaHari >= 0 && bedaHari <= 7) totalMingguan += nominal;
+                    
+                    if (tglTrx.getMonth() === sekarang.getMonth() && tglTrx.getFullYear() === sekarang.getFullYear()) totalBulanan += nominal;
                 });
 
-                // Tampilkan angkanya di layar
+                // Isi Tabel dengan 50 transaksi terakhir (Dibalik agar yang terbaru di atas)
+                const transaksiTerbaru = dataTrx.slice().reverse().slice(0, 50);
+                
+                if (transaksiTerbaru.length === 0) {
+                    tabelRincian.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#9ca3af; padding:15px;">Belum ada data transaksi.</td></tr>';
+                } else {
+                    transaksiTerbaru.forEach(trx => {
+                        const tglTrx = new Date(trx.tanggal);
+                        const formatWaktu = `${tglTrx.toLocaleDateString('id-ID')} ${tglTrx.getHours()}:${tglTrx.getMinutes().toString().padStart(2, '0')}`;
+                        const nominal = parseInt(trx.total) || 0;
+                        
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${formatWaktu}</td>
+                            <td>${trx.id_transaksi}</td>
+                            <td>${trx.nama_meja}</td>
+                            <td>${trx.metode || 'Tunai'}</td>
+                            <td style="text-align: right; font-weight: bold;">${nominal.toLocaleString('id-ID')}</td>
+                        `;
+                        tabelRincian.appendChild(tr);
+                    });
+                }
+
+                // Tampilkan angka ke layar ringkasan
                 document.getElementById('lap-harian').innerText = `Rp ${totalHarian.toLocaleString('id-ID')}`;
                 document.getElementById('lap-mingguan').innerText = `Rp ${totalMingguan.toLocaleString('id-ID')}`;
                 document.getElementById('lap-bulanan').innerText = `Rp ${totalBulanan.toLocaleString('id-ID')}`;
 
-                // Buka Modal Laporan
                 modalLaporan.style.display = 'flex';
                 setTimeout(() => modalLaporan.style.opacity = '1', 10);
             } else {
@@ -837,10 +854,17 @@ if (btnLaporan) {
         } catch (error) {
             showToast("Koneksi gagal saat memuat laporan", "error");
         } finally {
-            // Kembalikan tombol seperti semula
             btnLaporan.innerText = "📊 LAPORAN";
             btnLaporan.disabled = false;
         }
+    });
+}
+
+// Fitur Download PDF (Menggunakan Print bawaan Browser)
+if (btnCetakLaporan) {
+    btnCetakLaporan.addEventListener('click', () => {
+        window.print();
+        showToast("Menyiapkan dokumen PDF...", "success");
     });
 }
 
