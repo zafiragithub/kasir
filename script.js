@@ -769,3 +769,84 @@ document.addEventListener('keydown', (e) => {
     if (e.key === 'F12') { e.preventDefault(); prosesPembayaran(); }
     if (e.key === 'F11') { e.preventDefault(); document.getElementById('btn-new').click(); }
 });
+// ==========================================
+// --- 10. FITUR LAPORAN PENJUALAN ---
+// ==========================================
+const modalLaporan = document.getElementById('modal-laporan');
+const btnLaporan = document.getElementById('btn-laporan');
+const btnTutupLaporan = document.getElementById('btn-tutup-laporan');
+
+if (btnLaporan) {
+    btnLaporan.addEventListener('click', async () => {
+        // Tampilkan pesan loading di tombol
+        btnLaporan.innerText = "Memuat...";
+        btnLaporan.disabled = true;
+
+        try {
+            const payloadLaporan = { action: "laporan" };
+            
+            // ⚠️ GANTI '/api' DI BAWAH INI DENGAN LINK GOOGLE SCRIPT BOS ⚠️
+            const response = await fetch('/api', { 
+                method: 'POST', 
+                body: JSON.stringify(payloadLaporan) 
+            });
+            
+            const result = await response.json();
+
+            if (result.status === 'success') {
+                const dataTrx = result.data;
+                const sekarang = new Date();
+                
+                let totalHarian = 0;
+                let totalMingguan = 0;
+                let totalBulanan = 0;
+
+                dataTrx.forEach(trx => {
+                    const tglTrx = new Date(trx.tanggal);
+                    const nominal = parseInt(trx.total) || 0;
+
+                    // 1. Hitung Harian
+                    if (tglTrx.toDateString() === sekarang.toDateString()) {
+                        totalHarian += nominal;
+                    }
+
+                    // 2. Hitung Mingguan (7 hari terakhir)
+                    const bedaWaktu = sekarang.getTime() - tglTrx.getTime();
+                    const bedaHari = bedaWaktu / (1000 * 3600 * 24);
+                    if (bedaHari >= 0 && bedaHari <= 7) {
+                        totalMingguan += nominal;
+                    }
+
+                    // 3. Hitung Bulanan
+                    if (tglTrx.getMonth() === sekarang.getMonth() && tglTrx.getFullYear() === sekarang.getFullYear()) {
+                        totalBulanan += nominal;
+                    }
+                });
+
+                // Tampilkan angkanya di layar
+                document.getElementById('lap-harian').innerText = `Rp ${totalHarian.toLocaleString('id-ID')}`;
+                document.getElementById('lap-mingguan').innerText = `Rp ${totalMingguan.toLocaleString('id-ID')}`;
+                document.getElementById('lap-bulanan').innerText = `Rp ${totalBulanan.toLocaleString('id-ID')}`;
+
+                // Buka Modal Laporan
+                modalLaporan.style.display = 'flex';
+                setTimeout(() => modalLaporan.style.opacity = '1', 10);
+            } else {
+                showToast("Gagal menarik data laporan", "error");
+            }
+        } catch (error) {
+            showToast("Koneksi gagal saat memuat laporan", "error");
+        } finally {
+            // Kembalikan tombol seperti semula
+            btnLaporan.innerText = "📊 LAPORAN";
+            btnLaporan.disabled = false;
+        }
+    });
+}
+
+if (btnTutupLaporan) {
+    btnTutupLaporan.addEventListener('click', () => {
+        modalLaporan.style.opacity = '0';
+        setTimeout(() => modalLaporan.style.display = 'none', 300);
+    });
+}
