@@ -663,7 +663,41 @@ document.getElementById('btn-tutup-modal').addEventListener('click', () => {
     setTimeout(() => modal.style.display = 'none', 300);
 });
 
-document.getElementById('btn-download-pdf').addEventListener('click', () => window.print());
+document.getElementById('btn-download-pdf').addEventListener('click', () => {
+    // 1. Ambil isi HTML struknya saja
+    const isiStruk = document.getElementById('struk-preview').innerHTML;
+    
+    // 2. Buka jendela tak terlihat khusus untuk nge-print
+    const jendelaPrint = window.open('', '_blank', 'width=400,height=600');
+    
+    // 3. Suntikkan struk ke jendela baru tersebut beserta gayanya
+    jendelaPrint.document.write(`
+        <html>
+        <head>
+            <title>Struk Pembayaran - ${NAMA_TOKO}</title>
+            <style>
+                body { font-family: 'Courier New', Courier, monospace; color: #000; padding: 15px; max-width: 300px; margin: 0 auto; }
+                table { width: 100%; font-size: 14px; margin-bottom: 10px; border-collapse: collapse; }
+                h3 { font-family: 'Segoe UI', sans-serif; }
+                /* Sembunyikan URL & Tanggal bawaan browser saat cetak PDF */
+                @page { margin: 0; }
+            </style>
+        </head>
+        <body>
+            ${isiStruk}
+        </body>
+        </html>
+    `);
+    
+    jendelaPrint.document.close();
+    jendelaPrint.focus();
+    
+    // 4. Munculkan dialog print, lalu tutup jendelanya otomatis
+    setTimeout(() => {
+        jendelaPrint.print();
+        jendelaPrint.close();
+    }, 250);
+});
 
 document.getElementById('btn-print-thermal').addEventListener('click', async () => {
     if (!dataStrukAktif) return;
