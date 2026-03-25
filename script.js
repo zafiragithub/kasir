@@ -445,14 +445,31 @@ function bukaScannerKamera(elemenTarget) {
     
     html5QrCode.start(cameraConfig, config, 
         (decodedText, decodedResult) => {
-            suaraBeep();
-            targetInputScan.value = decodedText;
+            suaraBeep(); // Bunyikan suara Tiiit!
             
+            // Cek siapa yang memanggil kamera
             if (targetInputScan.id === 'cari-produk') {
-                targetInputScan.dispatchEvent(new Event('input'));
+                // JIKA KASIR YANG SCAN: Langsung cari dan masukkan keranjang
+                const cari = daftarProduk.find(p => p.id_produk.toLowerCase() === decodedText.toLowerCase());
+                if (cari) {
+                    tambahKeKeranjang(cari); // Langsung masuk keranjang!
+                    targetInputScan.value = ''; // Kosongkan input
+                    searchDropdown.style.display = 'none'; // Tutup dropdown
+                } else {
+                    alert("Barang dengan Barcode " + decodedText + " tidak ditemukan!");
+                }
+            } else {
+                // JIKA MENU TAMBAH PRODUK YANG SCAN: Cuma isi teksnya saja
+                targetInputScan.value = decodedText;
             }
+            
             tutupScannerKamera();
         },
+        (errorMessage) => { /* Abaikan error pencarian fokus */ }
+    ).catch((err) => {
+        alert("Akses kamera ditolak. Pesan Sistem: " + err);
+        tutupScannerKamera();
+    });
         (errorMessage) => { /* Abaikan error pencarian fokus */ }
     ).catch((err) => {
         alert("Akses kamera ditolak oleh HP/Browser. Pesan Sistem: " + err);
