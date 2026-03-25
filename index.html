@@ -13,7 +13,7 @@
             <h2>TOKO BOS</h2>
         </div>
         <div class="header-info">
-            <div><small>CUSTOMER</small><br><b>CASH / UMUM</b></div>
+            <div><small>CUSTOMER</small><br><b id="display-customer">CASH / UMUM</b></div>
             <div><small>TANGGAL</small><br><b id="tanggal-hari-ini">-</b></div>
             <div><small>KASIR</small><br><b>Admin 1</b></div>
         </div>
@@ -34,10 +34,10 @@
             </div>
 
             <div class="action-toolbar">
-                <button>📄 NEW (F11)</button>
-                <button>📂 OPEN</button>
-                <button>🔢 QTY (F4)</button>
-                <button>🗑️ HAPUS ITEM</button>
+                <button id="btn-new">📄 NEW (F11)</button>
+                <button id="btn-open">📂 OPEN</button>
+                <button id="btn-qty">🔢 QTY (F4)</button>
+                <button id="btn-hapus-semua">🗑️ HAPUS SEMUA</button>
             </div>
 
             <div class="table-container">
@@ -61,17 +61,17 @@
 
         <aside class="sidebar-panel">
             <div class="sidebar-buttons">
-                <button>⭐ FAVORIT</button>
-                <button>💲 HARGA</button>
-                <button>🏷️ DISC ITEM</button>
-                <button>👤 MEMBER</button>
-                <button>🔍 CEK HARGA</button>
+                <button id="btn-favorit">⭐ FAVORIT</button>
+                <button id="btn-harga">💲 HARGA</button>
+                <button id="btn-disc">🏷️ DISC ITEM</button>
+                <button id="btn-member">👤 MEMBER</button>
+                <button id="btn-cek-harga">🔍 CEK HARGA</button>
             </div>
             
             <div class="payment-summary">
                 <div class="input-group">
                     <label>Nama / Meja:</label>
-                    <input type="text" id="nama-pembeli" class="smooth-transition">
+                    <input type="text" id="nama-pembeli" class="smooth-transition" placeholder="CASH / UMUM">
                 </div>
                 <div class="input-group">
                     <label>Uang Bayar:</label>
@@ -87,6 +87,17 @@
         </aside>
     </div>
 
+    <div id="struk-modal" class="modal smooth-transition">
+        <div class="modal-content">
+            <div id="struk-preview"></div>
+            <div class="modal-actions">
+                <button id="btn-print-thermal" class="btn-primary" style="margin-bottom: 8px;">🖨️ Cetak Thermal</button>
+                <button id="btn-download-pdf" class="btn-secondary" style="margin-bottom: 8px;">📄 Download PDF / Print</button>
+                <button id="btn-tutup-modal" class="btn-danger">Tutup</button>
+            </div>
+        </div>
+    </div>
+    
     <script src="script.js"></script>
 </body>
 </html>
