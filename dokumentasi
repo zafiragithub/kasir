@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buku Panduan - Aplikasi Kasir Modern</title>
+    <style>
+        :root {
+            --primary: #10b981; /* Hijau Emerald */
+            --dark: #0f172a; /* Navy Slate */
+            --light: #f8fafc;
+            --text: #334155;
+            --border: #e2e8f0;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0; padding: 0;
+            background-color: var(--light);
+            color: var(--text);
+            line-height: 1.6;
+        }
+        header {
+            background: linear-gradient(to right, var(--dark), #1e293b);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+            border-bottom: 5px solid var(--primary);
+        }
+        header h1 { margin: 0; font-size: 32px; letter-spacing: 1px; }
+        header p { margin: 10px 0 0 0; color: #cbd5e1; font-size: 16px; }
+        
+        .container {
+            max-width: 1000px;
+            margin: 40px auto;
+            display: flex;
+            gap: 30px;
+            padding: 0 20px;
+        }
+        
+        /* Sidebar Navigasi */
+        .sidebar {
+            width: 250px;
+            flex-shrink: 0;
+            position: sticky;
+            top: 20px;
+            height: fit-content;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border: 1px solid var(--border);
+        }
+        .sidebar h3 { margin-top: 0; color: var(--dark); border-bottom: 2px solid var(--primary); padding-bottom: 10px; }
+        .sidebar ul { list-style: none; padding: 0; margin: 0; }
+        .sidebar li { margin-bottom: 10px; }
+        .sidebar a {
+            text-decoration: none;
+            color: var(--text);
+            font-weight: 600;
+            display: block;
+            padding: 8px 10px;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+        .sidebar a:hover { background-color: #ecfdf5; color: var(--primary); }
+
+        /* Konten Utama */
+        .content {
+            flex: 1;
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border: 1px solid var(--border);
+        }
+        .content h2 { color: var(--dark); border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-top: 40px; }
+        .content h2:first-child { margin-top: 0; }
+        .content h3 { color: var(--primary); margin-top: 25px; }
+        
+        .step-box {
+            background: #f1f5f9;
+            padding: 15px 20px;
+            border-left: 4px solid var(--primary);
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 20px;
+        }
+        .step-box h4 { margin: 0 0 10px 0; color: var(--dark); }
+        .step-box p { margin: 0; }
+        
+        .alert {
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+            padding: 15px;
+            border-radius: 8px;
+            color: #92400e;
+            margin: 20px 0;
+            font-weight: 600;
+        }
+
+        .highlight { background: #e2e8f0; padding: 2px 6px; border-radius: 4px; font-family: monospace; color: #ef4444; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { border: 1px solid var(--border); padding: 12px; text-align: left; }
+        th { background-color: var(--dark); color: white; }
+        tr:nth-child(even) { background-color: #f8fafc; }
+
+        @media (max-width: 768px) {
+            .container { flex-direction: column; }
+            .sidebar { width: auto; position: relative; top: 0; }
+            .content { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Buku Panduan Administrator</h1>
+        <p>Aplikasi Kasir Modern (Toko BOS) terintegrasi Google Sheets & Cloudflare</p>
+    </header>
+
+    <div class="container">
+        <aside class="sidebar">
+            <h3>Daftar Isi</h3>
+            <ul>
+                <li><a href="#bab1">1. Setup Database (Sheets)</a></li>
+                <li><a href="#bab2">2. Deploy Apps Script</a></li>
+                <li><a href="#bab3">3. Setting File Kasir</a></li>
+                <li><a href="#bab4">4. Manajemen Akun Kasir</a></li>
+                <li><a href="#bab5">5. Upload ke Cloudflare</a></li>
+                <li><a href="#bab6">6. Penjelasan Fitur Kasir</a></li>
+            </ul>
+        </aside>
+
+        <main class="content">
+            
+            <h2 id="bab1">1. Setup Database (Google Sheets)</h2>
+            <p>Aplikasi ini menggunakan Google Sheets sebagai database gratis. Langkah pertama adalah menduplikasi *template* database ke akun Google Anda.</p>
+            <div class="step-box">
+                <h4>Langkah-langkah:</h4>
+                <ol>
+                    <li>Buka link *template* Google Sheets yang telah disediakan.</li>
+                    <li>Klik menu <strong>File</strong> di pojok kiri atas.</li>
+                    <li>Pilih <strong>Make a copy (Buat salinan)</strong>.</li>
+                    <li>Beri nama file sesuai keinginan (Misal: <i>Database Toko BOS</i>), lalu klik <strong>Make a copy</strong>.</li>
+                    <li>Pastikan di dalam file tersebut terdapat minimal 3 tab dengan nama persis seperti ini: <span class="highlight">Produk</span>, <span class="highlight">Kasir</span>, dan <span class="highlight">Sheet1</span>.</li>
+                </ol>
+            </div>
+
+            <h2 id="bab2">2. Menghubungkan Server (Google Apps Script)</h2>
+            <p>Agar aplikasi web bisa membaca dan menulis data ke Google Sheets, kita harus mengaktifkan "Jembatan" alias Google Apps Script.</p>
+            <div class="step-box">
+                <h4>Langkah-langkah Deploy:</h4>
+                <ol>
+                    <li>Di file Google Sheets yang baru Anda *copy*, klik menu <strong>Ekstensi (Extensions)</strong> > <strong>Apps Script</strong>.</li>
+                    <li>Jika kodenya sudah ada, biarkan. Jika kosong, <i>copy-paste</i> kode <code>Code.gs</code> yang sudah Anda miliki.</li>
+                    <li>Klik tombol biru <strong>Terapkan (Deploy)</strong> di pojok kanan atas, lalu pilih <strong>Deployment Baru (New deployment)</strong>.</li>
+                    <li>Klik ikon roda gigi (Select type) di samping "Pilih jenis", lalu centang <strong>Aplikasi Web (Web app)</strong>.</li>
+                    <li>Pada kolom "Jalankan sebagai (Execute as)", pastikan terpilih <strong>Saya (Me)</strong>.</li>
+                    <li>Pada kolom "Siapa yang memiliki akses (Who has access)", wajib pilih <strong>Siapa saja (Anyone)</strong>.</li>
+                    <li>Klik <strong>Terapkan (Deploy)</strong>. Jika diminta Otorisasi Akses (Authorize Access), klik izinkan dengan akun Google Anda.</li>
+                    <li>Salin <strong>URL Aplikasi Web (Web App URL)</strong> yang berakhiran <code>/exec</code>. Simpan link ini baik-baik!</li>
+                </ol>
+            </div>
+            <div class="alert">
+                ⚠️ PENTING: Jika di masa depan Anda mengubah kode di Apps Script, Anda wajib menekan "Terapkan > Kelola Deployment > Ikon Pensil > Versi Baru > Terapkan".
+            </div>
+
+            <h2 id="bab3">3. Setting File Aplikasi Web</h2>
+            <p>Setelah mendapatkan URL Apps Script, Anda harus menyuntikkannya ke dalam file utama aplikasi kasir.</p>
+            <div class="step-box">
+                <ol>
+                    <li>Buka file <code>script.js</code> di komputer Anda menggunakan Notepad atau Text Editor (VS Code).</li>
+                    <li>Gunakan fitur pencarian (Ctrl + F) dan cari *link* Google Script lama yang berakhiran <code>/exec</code>.</li>
+                    <li><strong>Ganti</strong> semua *link* lama tersebut dengan *URL Web App* yang baru saja Anda salin dari Langkah 2. (Total ada 5 tempat yang harus diganti).</li>
+                    <li>Simpan (Save) file <code>script.js</code> tersebut.</li>
+                </ol>
+            </div>
+
+            <h2 id="bab4">4. Manajemen Akun (Tambah User Kasir)</h2>
+            <p>Aplikasi ini memiliki "Gerbang Login". Akun tidak disimpan di kode web, melainkan di Google Sheets agar mudah dikelola oleh Pemilik (Bos).</p>
+            <div class="step-box">
+                <h4>Cara Menambah/Mengubah Password Kasir:</h4>
+                <ol>
+                    <li>Buka Google Sheets database Anda.</li>
+                    <li>Masuk ke tab <strong>Kasir</strong>.</li>
+                    <li>Isi data di baris kosong dengan format:
+                        <ul>
+                            <li><strong>Kolom A (Username):</strong> Bebas tanpa spasi (Misal: <i>kasir1</i>)</li>
+                            <li><strong>Kolom B (Password):</strong> Angka atau huruf (Misal: <i>12345</i>)</li>
+                            <li><strong>Kolom C (Nama_Kasir):</strong> Nama asli kasir yang akan muncul di struk (Misal: <i>Budi Santoso</i>).</li>
+                        </ul>
+                    </li>
+                    <li>Data otomatis tersimpan dan bisa langsung digunakan untuk Login.</li>
+                </ol>
+            </div>
+
+            <h2 id="bab5">5. Upload Web ke Cloudflare (Hosting Gratis)</h2>
+            <p>Agar web bisa diakses dari mana saja (HP/Tablet/Laptop) menggunakan *link* resmi tanpa biaya sewa *server*, kita gunakan <strong>Cloudflare Pages</strong>.</p>
+            <div class="step-box">
+                <h4>Langkah-langkah Hosting:</h4>
+                <ol>
+                    <li>Pastikan Anda sudah memiliki 3 file dalam satu folder: <code>index.html</code>, <code>style.css</code>, dan <code>script.js</code>.</li>
+                    <li>Buat akun gratis di <a href="https://dash.cloudflare.com/sign-up" target="_blank">dash.cloudflare.com</a>.</li>
+                    <li>Setelah login, klik menu <strong>Workers & Pages</strong> di menu sebelah kiri.</li>
+                    <li>Pilih tab <strong>Pages</strong>, lalu klik tombol <strong>Upload assets</strong>.</li>
+                    <li>Beri nama proyek aplikasi Anda (Misal: <i>kasir-toko-bos</i>), lalu klik <strong>Create project</strong>.</li>
+                    <li>Tarik dan lepas (Drag & Drop) <strong>folder</strong> yang berisi 3 file tadi ke dalam kotak yang disediakan Cloudflare.</li>
+                    <li>Tunggu proses *upload* selesai, lalu klik <strong>Deploy site</strong>.</li>
+                    <li>Selamat! Anda akan mendapatkan *link* web gratis (misal: <code>kasir-toko-bos.pages.dev</code>) yang siap dipakai berjualan.</li>
+                </ol>
+            </div>
+
+            <h2 id="bab6">6. Penjelasan Fitur Aplikasi Lengkap</h2>
+            <p>Berikut adalah cara menggunakan fitur-fitur yang tersedia di halaman kasir:</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 25%;">Fitur</th>
+                        <th>Penjelasan & Cara Penggunaan</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Scanner Kamera 📷</strong></td>
+                        <td>Klik ikon kamera di sebelah kotak pencarian. Kamera HP/Laptop akan menyala. Arahkan barcode barang, maka item akan otomatis masuk ke keranjang.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Menu Favorit ⭐</strong></td>
+                        <td>Jalan pintas untuk barang paling laris atau tanpa barcode (es batu, kresek). Untuk menambahkannya, ketik kata <strong>YA</strong> di kolom F (Favorit) pada tab "Produk" di Google Sheets.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Diskon Per Item 🏷️</strong></td>
+                        <td>Berfungsi memotong harga pada satu barang spesifik. Klik barang di keranjang, lalu klik "DISC ITEM" dan masukkan nominal diskon (Rupiah).</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Override Harga 💲</strong></td>
+                        <td>Berfungsi untuk mengubah harga jual secara paksa (misal untuk harga grosir). Klik barang di keranjang, pilih tombol "HARGA", dan ketik harga baru.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Simpan Draft 📄</strong></td>
+                        <td>Gunakan tombol "NEW (F11)" untuk menahan transaksi pelanggan yang belum selesai (misal: dompet tertinggal). Panggil kembali transaksinya dengan tombol "OPEN DRAFT".</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Dashboard Laporan 📊</strong></td>
+                        <td>Klik tombol Laporan untuk melihat omzet Hari Ini, 7 Hari Terakhir, dan Bulan Ini secara *Real-Time*. Termasuk tabel 50 transaksi terakhir.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Download / Print PDF 📄</strong></td>
+                        <td>Terdapat pada Modal Struk dan Modal Laporan. Berfungsi mencetak dokumen sangat rapi (hanya hitam putih tanpa elemen web) untuk di-<i>save</i> sebagai PDF atau diprint ke printer A4 biasa.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Cetak Thermal 🖨️</strong></td>
+                        <td>Setelah transaksi (Bayar/F12), klik tombol "Cetak Thermal". Web akan terhubung langsung via Bluetooth/Kabel serial ke Printer Kasir (Web Serial API).</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div style="text-align: center; margin-top: 50px; color: #94a3b8; font-size: 14px;">
+                <p>Dokumentasi Resmi Aplikasi Kasir Modern - Hak Cipta &copy; 2026</p>
+            </div>
+        </main>
+    </div>
+
+</body>
+</html>
