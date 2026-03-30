@@ -191,24 +191,45 @@ customModalInput.addEventListener('keydown', (e) => {
 
 
 // ==========================================
-// --- 1. AMBIL DATA PRODUK DARI SERVER ---
+// --- 1. AMBIL DATA PRODUK DARI SERVER (GVIZ TURBO) ---
 // ==========================================
 async function fetchProduk() {
     try {
-        searchInput.placeholder = "Memuat data dari server...";
-        const response = await fetch('https://script.google.com/macros/s/AKfycbye1v3w0Kd5gcLAJ0bZ7JrLULS7KBqLgM6XVrJOn_AR844mLRi36hfvbEi77OQHmIKg/exec');
-        const result = await response.json();
-        if (result.status === 'success') {
-            daftarProduk = result.data;
-            searchInput.placeholder = "Ketik nama atau kode item (Scan Barcode)...";
-            searchInput.focus();
-        }
+        searchInput.placeholder = "Memuat data kilat (GViz)...";
+        
+        // ⚠️ GANTI KODE DI BAWAH INI DENGAN ID SPREADSHEET BOS ⚠️
+        const SHEET_ID = '1tsgqMcDKkPEG63Vu2D5p53K0oogjVuqWSaLa9b7hM3M'; 
+        const SHEET_NAME = 'Produk'; // Pastikan nama tab-nya benar "Produk"
+        
+        // URL khusus GViz untuk tarik data super cepat
+        const gvizUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${SHEET_NAME}`;
+
+        const response = await fetch(gvizUrl);
+        const text = await response.text();
+        
+        // GViz mengembalikan teks dengan bungkus fungsi, kita harus potong agar jadi JSON murni
+        const jsonString = text.substring(text.indexOf('{'), text.lastIndexOf('}') + 1);
+        const result = JSON.parse(jsonString);
+
+        // Map data dari GViz ke format array aplikasi kita (Asumsi kolom: A=ID, B=Nama, C=Kategori, D=Harga, E=Stok, F=Favorit)
+        daftarProduk = result.table.rows.map(row => ({
+            id_produk: row.c[0] ? row.c[0].v : '',
+            nama_produk: row.c[1] ? row.c[1].v : '',
+            kategori: row.c[2] ? row.c[2].v : '',
+            harga: row.c[3] ? row.c[3].v : 0,
+            stok: row.c[4] ? row.c[4].v : 0,
+            favorit: row.c[5] ? row.c[5].v : ''
+        })).filter(p => p.id_produk !== '' && p.id_produk !== 'ID_PRODUK'); // Buang baris kosong dan judul kolom
+
+        searchInput.placeholder = "Ketik nama atau kode item (Scan Barcode)...";
+        searchInput.focus();
+        
     } catch (error) {
-        showToast("Koneksi data gagal. Refresh halaman.", "error");
+        showToast("Koneksi GViz gagal. Refresh halaman.", "error");
         searchInput.placeholder = "Koneksi data gagal.";
+        console.error("Error GViz:", error);
     }
 }
-
 
 // ==========================================
 // --- 2. PENCARIAN & DROPDOWN (KASIR) ---
